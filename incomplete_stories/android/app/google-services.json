@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "251016602627",
+    "firebase_url": "https://completestory1-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "completestory1",
+    "storage_bucket": "completestory1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251016602627:android:125d406fbe71c26bdada36",
+        "android_client_info": {
+          "package_name": "com.example.incomplete_stories"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "251016602627-6rd4evrvo679afki17eeb9a64csf2t26.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAt8CkO846aJARyESIaoHg4_dIwIicrmuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "251016602627-6rd4evrvo679afki17eeb9a64csf2t26.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/incomplete_stories/incomplete_stories.iml" filepath="$PROJECT_DIR$/incomplete_stories/incomplete_stories.iml" />
+      <module fileurl="file://$PROJECT_DIR$/incomplete_stories/android/incomplete_stories_android.iml" filepath="$PROJECT_DIR$/incomplete_stories/android/incomplete_stories_android.iml" />
+    </modules>
+  </component>
+</project>
