@@ -40,8 +40,10 @@ class MyApp extends StatelessWidget {
     // Notice that the counter didn't reset back to zero; the application
     // is not restarted.
     primarySwatch: Colors.deepOrange,
+
     ),
     home: const MyGames(title: 'Complete Story'),
+
     );
     };
     return const Text("waiting",textDirection: TextDirection.ltr);

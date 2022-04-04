@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:incomplete_stories/Components/bottomBar.dart';
 import 'package:incomplete_stories/Components/listItem.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/myGames.dart';
@@ -39,31 +40,38 @@ class _SearchGameState extends State<SearchGame> {
   listFoundedGames(dynamic availableGames){
 
     for(var game in availableGames as List<Object?>) {
-      dynamic hashedMap = jsonDecode(jsonEncode(game));
-      var map = HashMap.from(hashedMap);
-      GameRoom gameRoom = GameRoom.fromJson(map);
-      games.putIfAbsent(gameRoom.id, () => gameRoom);
+      if(game != null) {
+        dynamic hashedMap = jsonDecode(jsonEncode(game));
+        var map = HashMap.from(hashedMap);
+        GameRoom gameRoom = GameRoom.fromJson(map);
+        games.putIfAbsent(gameRoom.id, () => gameRoom);
+      }
     }
     filterGames();
   }
 
   checkRemovedGames(dynamic removedGames) {
     for(var game in removedGames as List<Object?>) {
-      dynamic hashedMap = jsonDecode(jsonEncode(game));
-      var map = HashMap.from(hashedMap);
-      GameRoom gameRoom = GameRoom.fromJson(map);
-      games.remove(gameRoom.id);
+      if(game != null) {
+        dynamic hashedMap = jsonDecode(jsonEncode(game));
+        var map = HashMap.from(hashedMap);
+        GameRoom gameRoom = GameRoom.fromJson(map);
+        games.remove(gameRoom.id);
+      }
     }
     filterGames();
   }
 
   checkUpdates(dynamic updatedGames) {
     for(var game in updatedGames as List<Object?>) {
-      dynamic hashedMap = jsonDecode(jsonEncode(game));
-      var map = HashMap.from(hashedMap);
-      GameRoom gameRoom = GameRoom.fromJson(map);
+      if(game != null) {
+        dynamic hashedMap = jsonDecode(jsonEncode(game));
+        var map = HashMap.from(hashedMap);
+        GameRoom gameRoom = GameRoom.fromJson(map);
 
-      games.update(gameRoom.id,(value) => gameRoom,ifAbsent: () => gameRoom);
+        games.update(
+            gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
+      }
 
     }
     filterGames();
@@ -136,7 +144,7 @@ class _SearchGameState extends State<SearchGame> {
                     }),
               ),
             ],
-          )
+          ),
 
           // ListView(
       //     children: [
@@ -152,6 +160,7 @@ class _SearchGameState extends State<SearchGame> {
       //
       //     ],
       //   ),
+          bottomNavigationBar: const BottomNavigator(),
       ),
     );
   }

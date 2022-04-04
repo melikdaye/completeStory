@@ -29,29 +29,32 @@ class DatabaseService {
     Stream<DatabaseEvent> gameIDStream = ref.onValue;
     gameIDStream.listen((event) {
       final games = event.snapshot.value;
-      print(games);
-      for(var id in games as Iterable<dynamic>){
+      if(games != null) {
+        for (var id in games as Iterable<dynamic>) {
           print(id);
-          String path = id.toString().replaceAll("-","/");
+          String path = id.toString().replaceAll("-", "/");
           print(path);
-          DatabaseReference pref = getCollectionRef('rooms/pre/y7cPlFnzUNRZi3jTirbOPdW4bbC3/0');
+          DatabaseReference pref = getCollectionRef('rooms/pre/$path');
           pref.onValue.listen((event) {
             print("add ${event.snapshot.value}");
             callBack(event.snapshot.value);
           });
-       }
-
+        }
+      }
     });
   }
 
-  Future getManagedRoomsUpdates(String uid,void Function(dynamic updates) callBack) async {
+  Future getManagedPreGames(String uid,void Function(dynamic updates) callBack) async {
     DatabaseReference preRef = getCollectionRef('rooms/pre/$uid');
-    DatabaseReference inGameRef = getCollectionRef('rooms/playing/$uid');
     Stream<DatabaseEvent> preStream = preRef.onValue;
-    Stream<DatabaseEvent> inGameStream = inGameRef.onValue;
     preStream.listen((event) {
       callBack(event.snapshot.value);
     });
+  }
+
+  Future getManagedPlayingGames(String uid,void Function(dynamic updates) callBack) async {
+    DatabaseReference inGameRef = getCollectionRef('rooms/playing/$uid');
+    Stream<DatabaseEvent> inGameStream = inGameRef.onValue;
     inGameStream.listen((event) {
       callBack(event.snapshot.value);
     });
@@ -97,7 +100,7 @@ class DatabaseService {
     await ref.update({"currentNumberOfPlayers":gameRoom.currentNumberOfPlayers-1});
     gameRoom.currentPlayers.remove(uid);
     await ref.update({"currentPlayers":gameRoom.currentPlayers});
-    DatabaseReference userRef = getCollectionRef('users/$uid/$gameType/${gameRoom.ownerID}-${gameRoom.id}');
+    DatabaseReference userRef = getCollectionRef('users/$uid/$gameType/${gameRoom.id}');
     await userRef.remove();
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:incomplete_stories/Components/bottomSheet.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
@@ -10,6 +11,7 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
   String? mPlayerCnt = room.maxNumberOfPlayers.toString();
   String? beginStory = room.story;
   String? id = room.id.toString();
+  Color statusColor = room.isWaiting ? Colors.deepOrangeAccent : Colors.lightGreenAccent.shade700;
   return Container(
     padding: const EdgeInsets.all(10),
     child: ListTile(
@@ -25,19 +27,28 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
               _databaseService.leaveGame("a", room,"pre");
               break;
             case 2:
-                break;
+
+              break;
           }
         },
-        leading: Text(id , style: const TextStyle(fontSize: 18)),
+        onTap: (){
+            bottomSheet(room, mode, context);
+        },
+        leading:
+        mode==0 ? Text(id , style: const TextStyle(fontSize: 18)) :  Chip(label: Text(room.isWaiting ? "Lobby" : "InGame",
+        style: TextStyle(fontSize: 18, color: statusColor )),
+        ),
         title: Text(
           beginStory,
           style: const TextStyle(fontSize: 14,fontStyle: FontStyle.italic),
         ),
         trailing: Chip(label: Text('$cPlayerCnt/$mPlayerCnt',
-            style: const TextStyle(fontSize: 18, color: Colors.purple)),
-        )
+                    style: const TextStyle(fontSize: 18, color: Colors.purple)),
+                ),
+
     ),
     decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(width: 1, color: Colors.black26))),
+        border: Border(bottom: BorderSide(width: 1, color: Colors.deepOrangeAccent)),
+        color: Colors.white ),
   );
 }
