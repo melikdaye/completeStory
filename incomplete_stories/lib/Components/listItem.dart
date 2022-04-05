@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/Components/bottomSheet.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
+import 'package:incomplete_stories/models/question.dart';
 import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
 
 
-Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext context,mode) {
+Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext context,mode,dynamic questions) {
   String? cPlayerCnt = room.currentNumberOfPlayers.toString();
   String? mPlayerCnt = room.maxNumberOfPlayers.toString();
   String? beginStory = room.story;
@@ -32,7 +33,7 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
           }
         },
         onTap: (){
-            bottomSheet(room, mode, context);
+            bottomSheet(room,questions,mode, context);
         },
         leading:
         mode==0 ? Text(id , style: const TextStyle(fontSize: 18)) :  Chip(label: Text(room.isWaiting ? "Lobby" : "InGame",
@@ -42,6 +43,10 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
           beginStory,
           style: const TextStyle(fontSize: 14,fontStyle: FontStyle.italic),
         ),
+        subtitle:
+        mode == 3 ?
+        Text('Cevapsız Sorular : ${questions?.where((q) => q.answer == 4).toList()?.length.toString() ?? "0"}') :
+        mode == 4 ? Text('Sorularım : ${questions?.where((q) => q.ownerID == "a").toList()?.length.toString() ?? "0"}/${questions?.length.toString() ?? "0"}') : null,
         trailing: Chip(label: Text('$cPlayerCnt/$mPlayerCnt',
                     style: const TextStyle(fontSize: 18, color: Colors.purple)),
                 ),

@@ -140,7 +140,7 @@ class _SearchGameState extends State<SearchGame> {
                 child: ListView.builder(
                     itemCount: games.keys.length,
                     itemBuilder: (_, index) {
-                      return listItem(games[games.keys.toList()[index]] as GameRoom,_databaseService,context,0);
+                      return listItem(games[games.keys.toList()[index]] as GameRoom,_databaseService,context,0,null);
                     }),
               ),
             ],

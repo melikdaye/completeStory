@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
+import 'package:incomplete_stories/models/question.dart';
 
 class DatabaseService {
 
@@ -9,16 +10,16 @@ class DatabaseService {
   }
 
   Future<void> createGameRoom(GameRoom gameRoom) async {
-    print(gameRoom.toString());
+    //print(gameRoom.toString());
     DatabaseReference refRoomCount = getCollectionRef('numberOfRooms');
     final snapshot  = await refRoomCount.get();
     if (snapshot.exists) {
       String numberOfRooms = snapshot.value.toString();
-      print(numberOfRooms);
+      //print(numberOfRooms);
       String uid  = gameRoom.ownerID;
       gameRoom.id = int.parse(numberOfRooms);
       DatabaseReference ref = getCollectionRef('rooms/pre/$uid/$numberOfRooms');
-      print(gameRoom.toJson());
+      //print(gameRoom.toJson());
       await ref.set(gameRoom.toJson());
       await refRoomCount.set(int.parse(numberOfRooms) + 1);
     }
@@ -31,12 +32,32 @@ class DatabaseService {
       final games = event.snapshot.value;
       if(games != null) {
         for (var id in games as Iterable<dynamic>) {
-          print(id);
+          //print(id);
           String path = id.toString().replaceAll("-", "/");
-          print(path);
+          //print(path);
           DatabaseReference pref = getCollectionRef('rooms/pre/$path');
           pref.onValue.listen((event) {
-            print("add ${event.snapshot.value}");
+            //print("add ${event.snapshot.value}");
+            callBack(event.snapshot.value);
+          });
+        }
+      }
+    });
+  }
+
+  Future getInGameRooms(String uid,void Function(dynamic updates) callBack) async {
+    DatabaseReference ref = getCollectionRef('users/$uid/playing');
+    Stream<DatabaseEvent> gameIDStream = ref.onValue;
+    gameIDStream.listen((event) {
+      final games = event.snapshot.value;
+      if(games != null) {
+        for (var id in games as Iterable<dynamic>) {
+          //print(id);
+          String path = id.toString().replaceAll("-", "/");
+          //print(path);
+          DatabaseReference pref = getCollectionRef('rooms/playing/$path');
+          pref.onValue.listen((event) {
+            //print("add ${event.snapshot.value}");
             callBack(event.snapshot.value);
           });
         }
@@ -64,8 +85,8 @@ class DatabaseService {
     String uid  = gameRoom.ownerID;
     int id  = gameRoom.id;
     DatabaseReference ref = getCollectionRef('rooms/pre/$uid/$id');
-    await ref.update({"isWaiting":false});
     await ref.remove();
+    gameRoom.isWaiting = false;
     DatabaseReference newRef = getCollectionRef('rooms/playing/$uid/$id');
     await newRef.set(gameRoom.toJson());
   }
@@ -104,7 +125,31 @@ class DatabaseService {
     await userRef.remove();
   }
 
+  Future<void> getInGame(String uid,GameRoom gameRoom)async {
+    DatabaseReference preRef = getCollectionRef('users/$uid/pre');
+    await preRef.remove();
+    DatabaseReference playingRef = getCollectionRef('users/$uid/playing');
+    await playingRef.set({'${gameRoom.id}':'${gameRoom.ownerID}-${gameRoom.id}'});
+  }
 
+  Future<void> addQuestionToGame(Question question,GameRoom gameRoom)async {
+    DatabaseReference roomRef = getCollectionRef('questions/${gameRoom.id}');
+    final newKey = roomRef.push().key;
+    DatabaseReference qRef = getCollectionRef('questions/${gameRoom.id}/$newKey');
+    await qRef.set(question.toJson());
+  }
 
+  Future<void> getQuestionOfGame(GameRoom gameRoom,void Function(dynamic id,dynamic updates) callBack)async {
+    DatabaseReference qRef = getCollectionRef('questions/${gameRoom.id}');
+    Stream<DatabaseEvent> qStream = qRef.onValue;
+    qStream.listen((event) {
+      callBack(gameRoom.id,event.snapshot.value);
+    });
+  }
+  Future<void> updateAnswerOfQuestion(Question question)async {
+    DatabaseReference qRef = getCollectionRef(
+        'questions/${question.roomID}/${question.id}');
+    qRef.update({"answer": question.answer});
+  }
 
 }

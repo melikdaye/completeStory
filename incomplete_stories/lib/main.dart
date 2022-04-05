@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
 import 'package:incomplete_stories/login.dart';
 import 'package:incomplete_stories/myGames.dart';
+import 'package:incomplete_stories/playerRoom.dart';
+import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(create: (context) => AppContext(),
+      child: const MyApp())
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -42,7 +48,7 @@ class MyApp extends StatelessWidget {
     primarySwatch: Colors.deepOrange,
 
     ),
-    home: const MyGames(title: 'Complete Story'),
+    home: const PlayerRoom(),
 
     );
     };
