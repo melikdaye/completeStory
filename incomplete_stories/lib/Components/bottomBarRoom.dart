@@ -4,15 +4,15 @@ import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/searchGame.dart';
 
 
-class BottomNavigator extends StatefulWidget {
-  const BottomNavigator({Key? key}) : super(key: key);
+class BottomNavigatorRoom extends StatefulWidget {
+  const BottomNavigatorRoom({Key? key}) : super(key: key);
 
   @override
-  State<BottomNavigator> createState() => _BottomNavigatorState();
+  State<BottomNavigatorRoom> createState() => _BottomNavigatorRoomState();
 }
 
 
-class _BottomNavigatorState extends State<BottomNavigator> {
+class _BottomNavigatorRoomState extends State<BottomNavigatorRoom> {
 
 
   late int _selectedIndex = 2;
@@ -43,7 +43,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color(0xFF39AEA9),
+        backgroundColor: Color(0xFF39AEA9),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.search),

@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:incomplete_stories/models/answer.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/models/question.dart';
 
@@ -146,10 +147,38 @@ class DatabaseService {
       callBack(gameRoom.id,event.snapshot.value);
     });
   }
+
+  Future<void> getAnswerOfGame(GameRoom gameRoom,void Function(dynamic id,dynamic updates) callBack)async {
+    DatabaseReference qRef = getCollectionRef('answers/${gameRoom.id}');
+    Stream<DatabaseEvent> qStream = qRef.onValue;
+    qStream.listen((event) {
+      callBack(gameRoom.id,event.snapshot.value);
+    });
+  }
   Future<void> updateAnswerOfQuestion(Question question)async {
     DatabaseReference qRef = getCollectionRef(
         'questions/${question.roomID}/${question.id}');
     qRef.update({"answer": question.answer});
   }
+  Future<void> addAnswerToGame(Answer answer,GameRoom gameRoom)async {
+    DatabaseReference roomRef = getCollectionRef('answers/${gameRoom.id}');
+    final newKey = roomRef.push().key;
+    DatabaseReference qRef = getCollectionRef('answers/${gameRoom.id}/$newKey');
+    await qRef.set(answer.toJson());
+  }
+  Future<void> updateViewedPlayers(Question question,String uid)async {
+    DatabaseReference qRef = getCollectionRef(
+        'questions/${question.roomID}/${question.id}');
+    question.viewedBy.add(uid);
+    qRef.update({"viewedBy": question.viewedBy});
+  }
+
+  Future<void> updateSavedPlayers(Question question,String uid)async {
+    DatabaseReference qRef = getCollectionRef(
+        'questions/${question.roomID}/${question.id}');
+    question.savedBy.add(uid);
+    qRef.update({"savedBy": question.viewedBy});
+  }
+
 
 }

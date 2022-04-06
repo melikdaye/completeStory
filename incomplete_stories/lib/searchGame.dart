@@ -146,21 +146,7 @@ class _SearchGameState extends State<SearchGame> {
             ],
           ),
 
-          // ListView(
-      //     children: [
-      //       for(var id in games.keys) ListTile(
-      //
-      //           leading: Chip(label:Text('${games[id]?.currentNumberOfPlayers.toString()}/${games[id]?.maxNumberOfPlayers.toString()}'??"no data"),
-      //             backgroundColor: Colors.yellow.shade300,
-      //           ),
-      //           title : Text(games[id]?.id.toString() ?? ""),
-      //
-      //
-      //       ),
-      //
-      //     ],
-      //   ),
-          bottomNavigationBar: const BottomNavigator(),
+          bottomNavigationBar:  BottomNavigator(),
       ),
     );
   }

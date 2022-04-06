@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/Components/bottomSheet.dart';
+import 'package:incomplete_stories/adminView.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/models/question.dart';
 import 'package:incomplete_stories/myGames.dart';
+import 'package:incomplete_stories/playerRoom.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
 
 
@@ -33,11 +35,23 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
           }
         },
         onTap: (){
-            bottomSheet(room,questions,mode, context);
+            if(mode == 4){
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return  PlayerRoom(roomID: room.id);
+              }));
+            }
+            if(mode == 3){
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return  AdminView(roomID: room.id);
+              }));
+            }
+            // else {
+            //   bottomSheet(room, questions, mode, context);
+            // }
         },
         leading:
-        mode==0 ? Text(id , style: const TextStyle(fontSize: 18)) :  Chip(label: Text(room.isWaiting ? "Lobby" : "InGame",
-        style: TextStyle(fontSize: 18, color: statusColor )),
+        mode==0 ? Text(id , style: const TextStyle(fontSize: 18)) :  Chip(backgroundColor:Colors.white,label: Text(room.isWaiting ? "Lobby" : "InGame",
+        style: TextStyle(fontSize: 14, color: statusColor )),
         ),
         title: Text(
           beginStory,
@@ -45,15 +59,15 @@ Widget listItem(GameRoom room,DatabaseService _databaseService,BuildContext cont
         ),
         subtitle:
         mode == 3 ?
-        Text('Cevapsız Sorular : ${questions?.where((q) => q.answer == 4).toList()?.length.toString() ?? "0"}') :
+        Text('Cevapsız Sorular : ${questions?.where((q) => q.answer == 3).toList()?.length.toString() ?? "0"}') :
         mode == 4 ? Text('Sorularım : ${questions?.where((q) => q.ownerID == "a").toList()?.length.toString() ?? "0"}/${questions?.length.toString() ?? "0"}') : null,
-        trailing: Chip(label: Text('$cPlayerCnt/$mPlayerCnt',
-                    style: const TextStyle(fontSize: 18, color: Colors.purple)),
+        trailing: Chip(backgroundColor:Colors.white,label: Text('$cPlayerCnt/$mPlayerCnt',
+                    style: const TextStyle(fontSize: 15, color: Colors.purple)),
                 ),
 
     ),
     decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(width: 1, color: Colors.deepOrangeAccent)),
-        color: Colors.white ),
+        border: Border(bottom: BorderSide(width: 1, color: Color(0xFFE5EFC1))),
+        color: Color(0xFFA2D5AB) ),
   );
 }

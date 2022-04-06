@@ -3,10 +3,11 @@ import 'dart:convert';
 class Answer {
 
   late String answer = "";
-  late bool isCorrect;
+  late int isCorrect = 3;
   late DateTime date;
   final String ownerID;
-
+  late String id;
+  late String roomID;
   Answer.empty(this.ownerID);
 
   Answer.fromJson(Map<dynamic, dynamic> json):
@@ -19,7 +20,7 @@ class Answer {
     'answer': answer,
     'date' : date.toIso8601String(),
     'ownerID' : ownerID,
-    'isCorrect' : isCorrect,
+    'isCorrect' : isCorrect ,
   };
 
 }

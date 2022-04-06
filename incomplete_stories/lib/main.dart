@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
 import 'package:incomplete_stories/login.dart';
 import 'package:incomplete_stories/myGames.dart';
-import 'package:incomplete_stories/playerRoom.dart';
 import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
 import 'package:provider/provider.dart';
@@ -45,10 +44,10 @@ class MyApp extends StatelessWidget {
     // or simply save your changes to "hot reload" in a Flutter IDE).
     // Notice that the counter didn't reset back to zero; the application
     // is not restarted.
-    primarySwatch: Colors.deepOrange,
+    primarySwatch: Colors.blueGrey,
 
     ),
-    home: const PlayerRoom(),
+    home: const MyGames(title: 'Complete Story'),
 
     );
     };

@@ -212,6 +212,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_switch">
+          <value>
+            <list>
+              <option value="D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_switch-0.3.2/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_test">
           <value>
             <list>
@@ -503,6 +510,7 @@
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth_web-2.6.0+2/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib" />
+      <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_switch-0.3.2/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/flutterfire_ui-0.1.0-dev.2/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-5.2.4/lib" />
       <root url="file://D:/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_platform_interface-2.1.2/lib" />

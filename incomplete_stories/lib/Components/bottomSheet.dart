@@ -66,8 +66,8 @@ showAlertDialog(BuildContext context,dynamic question,int index) {
 
 Future answerQuestion(context,dynamic questions){
   print(questions);
-  dynamic unAnswered = questions?.where((q) => q.answer == 4).toList();
-  dynamic answered = questions?.where((q) => q.answer != 4).toList();
+  dynamic unAnswered = questions?.where((q) => q.answer == 3).toList();
+  dynamic answered = questions?.where((q) => q.answer != 3).toList();
   String? dropdownValue = 'Evet';
 
   return showModalBottomSheet(
@@ -164,31 +164,7 @@ Future<dynamic> bottomSheet(GameRoom gameRoom,dynamic questions,mode,context){
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if(mode == 4)
-              ListTile(
-                leading: const Icon(Icons.question_mark),
-                title: const Text('Soru Sor'),
-                onTap: () {
-                  askQuestion(context, gameRoom);
-                  // Navigator.pop(context);
-                },
-              ),
-            if(mode == 4)
-              ListTile(
-                leading: const Icon(Icons.question_answer_outlined),
-                title: const Text('Hikayeyi Tahmin Et'),
-                onTap: () {
-                  // Navigator.pop(context);
-                },
-              ),
-            if(mode == 4)
-              ListTile(
-                leading: const Icon(Icons.remove_red_eye),
-                title: const Text('Sorulanları Oku'),
-                onTap: () {
-                  // Navigator.pop(context);
-                },
-              ),
+
             if(mode == 1 || mode == 4)
               ListTile(
                 leading: const Icon(Icons.logout),
@@ -220,25 +196,7 @@ Future<dynamic> bottomSheet(GameRoom gameRoom,dynamic questions,mode,context){
                 Navigator.pop(context);
               },
             ),
-            if(mode == 3)
-              ListTile(
-                leading: const Icon(Icons.question_answer),
-                title: const Text('Soruları Cevapla'),
-                onTap: () {
-                  Navigator.pop(context);
-                  answerQuestion(context, questions);
 
-                },
-              ),
-            if(mode == 3)
-              ListTile(
-                leading: const Icon(Icons.thumb_up),
-                title: const Text('Hikaye tahminlerini onayla'),
-                onTap: () {
-                  _databaseService.transferRoomToInGame(gameRoom);
-                  Navigator.pop(context);
-                },
-              ),
             if(mode == 3)
               ListTile(
                 leading: const Icon(Icons.publish),

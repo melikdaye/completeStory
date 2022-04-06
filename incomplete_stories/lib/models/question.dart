@@ -5,7 +5,7 @@ class Question {
   late String question = "";
   late DateTime date;
   final String ownerID;
-  late int answer = 4;
+  late int answer = 3;
   late List<String> viewedBy = [];
   late List<String> savedBy = [];
   late String id;

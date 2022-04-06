@@ -35,194 +35,16 @@ class _MyGamesState extends State<MyGames> {
   late Map<dynamic,List<Question>> qOfGames = Provider.of<AppContext>(context,listen:true).qOfGames;
   late Map<dynamic,List<Question>> qPlayedGames = Provider.of<AppContext>(context,listen:true).qPlayedGames;
 
-  updateRoomStatus(dynamic updates){
-    if(updates != null) {
-      for (var game in updates as List<Object?>) {
-        if(game != null){
-        dynamic hashedMap = jsonDecode(jsonEncode(game));
-        var map = HashMap.from(hashedMap);
-        GameRoom gameRoom = GameRoom.fromJson(map);
-        if (gameRoom.gameOver) {
-          completedGames.update(
-              gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-        }
-        else {
-          if (gameRoom.isWaiting) {
-            preManagedGames.update(
-                gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-          } else {
-            if (preManagedGames.keys.contains(gameRoom.id)) {
-              preManagedGames.remove(gameRoom.id);
-            }
-            if(!playingManagedGames.keys.contains(gameRoom.id)) {
-              _databaseService.getQuestionOfGame(gameRoom, getQuestions);
-            }
-            playingManagedGames.update(
-                gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-
-
-          }
-        }
-        }
-      }
-      if (mounted) {
-        setState(() {
-          preManagedGames = preManagedGames;
-          playingManagedGames = playingManagedGames;
-          completedGames = completedGames;
-        });
-      }
-    }
-  }
-
-  updateGames(dynamic game){
-    if(game!=null) {
-      dynamic hashedMap = jsonDecode(jsonEncode(game));
-      var map = HashMap.from(hashedMap);
-      GameRoom gameRoom = GameRoom.fromJson(map);
-      if (gameRoom.currentPlayers.contains("a")) {
-        if(gameRoom.isWaiting){
-        preGames.update(
-            gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-        }else{
-
-          if(!playingGames.keys.contains(gameRoom.id)) {
-            _databaseService.getQuestionOfGame(gameRoom, getPlayedQuestions);
-          }
-          playingGames.update(
-              gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-          if(preGames.keys.contains(gameRoom.id)){
-            preGames.remove(gameRoom.id);
-            _databaseService.getInGame("a", gameRoom);
-          }
-
-        }
-      } else {
-        if(gameRoom.isWaiting) {
-          preGames.remove(gameRoom.id);
-        }else{
-          playingGames.remove(gameRoom.id);
-        }
-      }
-      if (mounted) {
-        setState(() {
-          preGames = preGames;
-          playingGames = playingGames;
-        });
-      }
-    }
-    print("preGames $preGames");
-    print("preGames $playingGames");
-  }
-
-  showAlertDialog(BuildContext context,int count) {
-
-    // set up the button
-    Widget okButton = TextButton(
-      child: Text("Tamam"),
-      onPressed: () { Navigator.pop(context); },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("Ceveplanmamış Soru Sayısı"),
-      content: Text("$count"),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-  getQuestions(dynamic id,dynamic questions){
-    if(questions != null) {
-      qOfGames = {};
-      for (var question in questions.keys.toList()) {
-        if (question != null) {
-          dynamic hashedMap = jsonDecode(jsonEncode(questions[question]));
-          var map = HashMap.from(hashedMap);
-          Question _question = Question.fromJson(map);
-          _question.id = question.toString();
-          _question.roomID = id.toString();
-          print(_question.answer);
-          if(qOfGames.keys.contains(id)){
-            qOfGames[id]?.add(_question);
-          }
-          else {
-            qOfGames[id] = [];
-            qOfGames[id]?.add(_question);
-          }
-
-        }
-      }
-      if (mounted) {
-        setState(() {
-          qOfGames = qOfGames;
-        });
-      }
-    }
-  }
-
-  getPlayedQuestions(dynamic id,dynamic questions){
-    if(questions != null) {
-      qPlayedGames = {};
-      for (var question in questions.keys.toList()) {
-        if (question != null) {
-          dynamic hashedMap = jsonDecode(jsonEncode(questions[question]));
-          var map = HashMap.from(hashedMap);
-          Question _question = Question.fromJson(map);
-          _question.id = question.toString();
-          _question.roomID = id.toString();
-          print(_question.id);
-          if(qPlayedGames.keys.contains(id)){
-            qPlayedGames[id]?.add(_question);
-          }
-          else {
-            qPlayedGames[id] = [];
-            qPlayedGames[id]?.add(_question);
-          }
-
-        }
-      }
-      if (mounted) {
-        setState(() {
-          qPlayedGames = qPlayedGames;
-        });
-      }
-    }
-  }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   print("initState");
-  //   _databaseService.getManagedPreGames("y7cPlFnzUNRZi3jTirbOPdW4bbC3",updateRoomStatus);
-  //   _databaseService.getManagedPlayingGames("y7cPlFnzUNRZi3jTirbOPdW4bbC3",updateRoomStatus);
-  //   _databaseService.getInLobbyRooms("a",updateGames);
-  //   _databaseService.getInGameRooms("a",updateGames);
-  //
-  // }
-  @override
-  void dispose() {
-    super.dispose();
-    print("dispose");
-  }
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: Colors.amber.shade50,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          bottom: TabBar(
+            toolbarHeight: 0,
+            bottom : TabBar(
             onTap : (int value) async {
 
             },
@@ -235,7 +57,6 @@ class _MyGamesState extends State<MyGames> {
         ),
         body:  TabBarView(
           children: [
-
             Column(
               children: [
                 LimitedBox(
@@ -293,7 +114,7 @@ class _MyGamesState extends State<MyGames> {
 
           ],
         ),
-        bottomNavigationBar: const BottomNavigator(),
+        bottomNavigationBar:  BottomNavigator(),
       ),
     );
   }

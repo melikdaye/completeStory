@@ -128,7 +128,7 @@ class _CreateGamePageState extends State<CreateGamePage> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavigator(),
+      bottomNavigationBar:  BottomNavigator(),
     );
   }
 }
