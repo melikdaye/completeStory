@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
 import 'package:incomplete_stories/login.dart';
 import 'package:incomplete_stories/myGames.dart';
+import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(create: (context) => AppContext(),
+      child: const MyApp())
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -39,9 +44,11 @@ class MyApp extends StatelessWidget {
     // or simply save your changes to "hot reload" in a Flutter IDE).
     // Notice that the counter didn't reset back to zero; the application
     // is not restarted.
-    primarySwatch: Colors.deepOrange,
+    primarySwatch: Colors.blueGrey,
+
     ),
     home: const MyGames(title: 'Complete Story'),
+
     );
     };
     return const Text("waiting",textDirection: TextDirection.ltr);

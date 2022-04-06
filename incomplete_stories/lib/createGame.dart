@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:incomplete_stories/Components/bottomBar.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
 
@@ -127,6 +128,7 @@ class _CreateGamePageState extends State<CreateGamePage> {
           ],
         ),
       ),
+      bottomNavigationBar:  BottomNavigator(),
     );
   }
 }
