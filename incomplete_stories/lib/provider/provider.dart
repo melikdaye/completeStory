@@ -21,6 +21,9 @@ class AppContext extends ChangeNotifier {
   late Map<dynamic,List<Question>> qPlayedGames = {};
   late Map<dynamic,List<Answer>> aPlayedGames = {};
 
+  late int selectedIndexBottomBar = 2;
+
+
   AppContext() {
     print("init provider");
     _databaseService.getManagedPreGames(
@@ -33,7 +36,9 @@ class AppContext extends ChangeNotifier {
 
   updateRoomStatus(dynamic updates){
     if(updates != null) {
-      for (var game in updates as List<Object?>) {
+      print(updates.runtimeType);
+      dynamic games = (updates is List<Object?>) ? updates : updates.values.toList() ;
+      for (var game in games as List<Object?>) {
         if(game != null){
           dynamic hashedMap = jsonDecode(jsonEncode(game));
           var map = HashMap.from(hashedMap);
@@ -105,7 +110,7 @@ class AppContext extends ChangeNotifier {
 
   getQuestions(dynamic id,dynamic questions){
     if(questions != null) {
-      qOfGames = {};
+      qOfGames[id] = [];
       for (var question in questions.keys.toList()) {
         if (question != null) {
           dynamic hashedMap = jsonDecode(jsonEncode(questions[question]));
@@ -113,14 +118,7 @@ class AppContext extends ChangeNotifier {
           Question _question = Question.fromJson(map);
           _question.id = question.toString();
           _question.roomID = id.toString();
-          if(qOfGames.keys.contains(id)){
-            qOfGames[id]?.add(_question);
-          }
-          else {
-            qOfGames[id] = [];
-            qOfGames[id]?.add(_question);
-          }
-
+          qOfGames[id]?.add(_question);
         }
       }
     }
@@ -130,7 +128,7 @@ class AppContext extends ChangeNotifier {
 
   getPlayedQuestions(dynamic id,dynamic questions){
     if(questions != null) {
-      qPlayedGames = {};
+      qPlayedGames[id] = [];
       for (var question in questions.keys.toList()) {
         if (question != null) {
           dynamic hashedMap = jsonDecode(jsonEncode(questions[question]));
@@ -138,14 +136,7 @@ class AppContext extends ChangeNotifier {
           Question _question = Question.fromJson(map);
           _question.id = question.toString();
           _question.roomID = id.toString();
-          if(qPlayedGames.keys.contains(id)){
-            qPlayedGames[id]?.add(_question);
-          }
-          else {
-            qPlayedGames[id] = [];
-            qPlayedGames[id]?.add(_question);
-          }
-
+          qPlayedGames[id]?.add(_question);
         }
       }
       print("qPlayedGames $qPlayedGames");
@@ -156,7 +147,7 @@ class AppContext extends ChangeNotifier {
 
   getAnswers(dynamic id,dynamic answers){
     if(answers != null) {
-      aOfGames = {};
+      aOfGames[id] = [];
       for (var answer in answers.keys.toList()) {
         if (answer != null) {
           dynamic hashedMap = jsonDecode(jsonEncode(answers[answer]));
@@ -164,14 +155,26 @@ class AppContext extends ChangeNotifier {
           Answer _answer = Answer.fromJson(map);
           _answer.id = answer.toString();
           _answer.roomID = id.toString();
-          if(aOfGames.keys.contains(id)){
-            aOfGames[id]?.add(_answer);
-          }
-          else {
-            aOfGames[id] = [];
-            aOfGames[id]?.add(_answer);
-          }
+          aOfGames[id]?.add(_answer);
+        }
+      }
+      print("aOfGames $aOfGames");
+      notifyListeners();
+    }
 
+  }
+
+  getPlayedAnswers(dynamic id,dynamic answers){
+    if(answers != null) {
+      aPlayedGames[id] = [];
+      for (var answer in answers.keys.toList()) {
+        if (answer != null) {
+          dynamic hashedMap = jsonDecode(jsonEncode(answers[answer]));
+          var map = HashMap.from(hashedMap);
+          Answer _answer = Answer.fromJson(map);
+          _answer.id = answer.toString();
+          _answer.roomID = id.toString();
+          aPlayedGames[id]?.add(_answer);
         }
       }
       print("aPlayedGames $aPlayedGames");
@@ -180,30 +183,9 @@ class AppContext extends ChangeNotifier {
 
   }
 
-  getPlayedAnswers(dynamic id,dynamic answers){
-    if(answers != null) {
-      aPlayedGames = {};
-      for (var answer in answers.keys.toList()) {
-        if (answer != null) {
-          dynamic hashedMap = jsonDecode(jsonEncode(answers[answer]));
-          var map = HashMap.from(hashedMap);
-          Answer _answer = Answer.fromJson(map);
-          _answer.id = answer.toString();
-          _answer.roomID = id.toString();
-          if(aPlayedGames.keys.contains(id)){
-            aPlayedGames[id]?.add(_answer);
-          }
-          else {
-            aPlayedGames[id] = [];
-            aPlayedGames[id]?.add(_answer);
-          }
-
-        }
-      }
-      print("aPlayedGames $aPlayedGames");
-      notifyListeners();
-    }
-
+  changeBottomBarIndex(int newIndex){
+    selectedIndexBottomBar = newIndex;
+    notifyListeners();
   }
 
 

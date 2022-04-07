@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
 import 'package:incomplete_stories/myGames.dart';
+import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
+import 'package:provider/provider.dart';
 
 
 class BottomNavigator extends StatefulWidget {
@@ -15,7 +17,7 @@ class BottomNavigator extends StatefulWidget {
 class _BottomNavigatorState extends State<BottomNavigator> {
 
 
-  late int _selectedIndex = 2;
+  late int _selectedIndex = Provider.of<AppContext>(context, listen: true).selectedIndexBottomBar;
 
   void _onItemTapped(index){
     late Widget selected;
@@ -24,15 +26,15 @@ class _BottomNavigatorState extends State<BottomNavigator> {
         selected = const SearchGame( title: '');
         break;
       case 1:
-        selected = const CreateGamePage( title: '');
+        selected = const CreateGamePage();
         break;
       case 2:
-        selected = const MyGames( title: '');
+        selected = const MyGames();
         break;
     }
-    setState(() {
-      _selectedIndex = index;
-    });
+
+    Provider.of<AppContext>(context,listen: false).changeBottomBarIndex(index);
+
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return  selected;
     }));

@@ -30,9 +30,11 @@ class DatabaseService {
     DatabaseReference ref = getCollectionRef('users/$uid/pre');
     Stream<DatabaseEvent> gameIDStream = ref.onValue;
     gameIDStream.listen((event) {
-      final games = event.snapshot.value;
+      dynamic games = event.snapshot.value;
       if(games != null) {
-        for (var id in games as Iterable<dynamic>) {
+        print("ınlobby rooms $games");
+        dynamic _games = (games is Iterable<dynamic>) ? games : games.values.toList() ;
+        for (var id in _games as Iterable<dynamic>) {
           //print(id);
           String path = id.toString().replaceAll("-", "/");
           //print(path);
@@ -50,9 +52,10 @@ class DatabaseService {
     DatabaseReference ref = getCollectionRef('users/$uid/playing');
     Stream<DatabaseEvent> gameIDStream = ref.onValue;
     gameIDStream.listen((event) {
-      final games = event.snapshot.value;
+      dynamic games = event.snapshot.value;
       if(games != null) {
-        for (var id in games as Iterable<dynamic>) {
+        dynamic _games = (games is Iterable<dynamic>) ? games : games.values.toList() ;
+        for (var id in _games as Iterable<dynamic>) {
           //print(id);
           String path = id.toString().replaceAll("-", "/");
           //print(path);
@@ -90,6 +93,9 @@ class DatabaseService {
     gameRoom.isWaiting = false;
     DatabaseReference newRef = getCollectionRef('rooms/playing/$uid/$id');
     await newRef.set(gameRoom.toJson());
+    for(var player in gameRoom.currentPlayers){
+      getInGame(player, gameRoom);
+    }
   }
 
   Future<void> searchAvailableGames(void Function(dynamic avialableRooms) getRooms,
@@ -113,8 +119,8 @@ class DatabaseService {
     await ref.update({"currentNumberOfPlayers":gameRoom.currentNumberOfPlayers+1});
     gameRoom.currentPlayers.add(uid);
     await ref.update({"currentPlayers":gameRoom.currentPlayers});
-    DatabaseReference userRef = getCollectionRef('users/$uid/pre');
-    await userRef.set({'${gameRoom.id}':'${gameRoom.ownerID}-${gameRoom.id}'});
+    DatabaseReference userRef = getCollectionRef('users/$uid/pre/${gameRoom.id}');
+    await userRef.set('${gameRoom.ownerID}-${gameRoom.id}');
 
   }
   Future<void> leaveGame(String uid,GameRoom gameRoom,String gameType)async {
@@ -127,10 +133,10 @@ class DatabaseService {
   }
 
   Future<void> getInGame(String uid,GameRoom gameRoom)async {
-    DatabaseReference preRef = getCollectionRef('users/$uid/pre');
+    DatabaseReference preRef = getCollectionRef('users/$uid/pre/${gameRoom.id}');
     await preRef.remove();
-    DatabaseReference playingRef = getCollectionRef('users/$uid/playing');
-    await playingRef.set({'${gameRoom.id}':'${gameRoom.ownerID}-${gameRoom.id}'});
+    DatabaseReference playingRef = getCollectionRef('users/$uid/playing/${gameRoom.id}');
+    await playingRef.set('${gameRoom.ownerID}-${gameRoom.id}');
   }
 
   Future<void> addQuestionToGame(Question question,GameRoom gameRoom)async {

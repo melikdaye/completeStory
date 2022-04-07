@@ -24,10 +24,10 @@ class _BottomNavigatorRoomState extends State<BottomNavigatorRoom> {
         selected = const SearchGame( title: '');
         break;
       case 1:
-        selected = const CreateGamePage( title: '');
+        selected = const CreateGamePage();
         break;
       case 2:
-        selected = const MyGames( title: '');
+        selected = const MyGames();
         break;
     }
     setState(() {

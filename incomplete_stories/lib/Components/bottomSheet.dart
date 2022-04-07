@@ -19,6 +19,7 @@ Future listUser(context,GameRoom gameRoom){
               title: Text(player),
               trailing: IconButton(onPressed: () {
                 _databaseService.leaveGame(player, gameRoom, gameRoom.isWaiting?"pre":"playing");
+                Navigator.pop(context);
               }, icon: Icon(Icons.exit_to_app),
               ),
 
@@ -181,6 +182,7 @@ Future<dynamic> bottomSheet(GameRoom gameRoom,dynamic questions,mode,context){
               leading: const Icon(Icons.logout),
               title: const Text('Oyuncu Çıkar'),
               onTap: () {
+                Navigator.pop(context);
                 listUser(context, gameRoom);
                 print(gameRoom.currentPlayers);
 
