@@ -1,12 +1,10 @@
 import 'dart:collection';
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:incomplete_stories/Components/bottomBar.dart';
 import 'package:incomplete_stories/Components/listItem.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
-import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
 
 class SearchGame extends StatefulWidget {
@@ -38,8 +36,8 @@ class _SearchGameState extends State<SearchGame> {
   
   
   listFoundedGames(dynamic availableGames){
-
-    for(var game in availableGames as List<Object?>) {
+    dynamic avGames = (availableGames is List<Object?>) ? availableGames : availableGames.values.toList() ;
+    for(var game in avGames as List<Object?>) {
       if(game != null) {
         dynamic hashedMap = jsonDecode(jsonEncode(game));
         var map = HashMap.from(hashedMap);
@@ -51,7 +49,8 @@ class _SearchGameState extends State<SearchGame> {
   }
 
   checkRemovedGames(dynamic removedGames) {
-    for(var game in removedGames as List<Object?>) {
+    dynamic rmGames = (removedGames is List<Object?>) ? removedGames : removedGames.values.toList() ;
+    for(var game in rmGames as List<Object?>) {
       if(game != null) {
         dynamic hashedMap = jsonDecode(jsonEncode(game));
         var map = HashMap.from(hashedMap);
@@ -63,7 +62,8 @@ class _SearchGameState extends State<SearchGame> {
   }
 
   checkUpdates(dynamic updatedGames) {
-    for(var game in updatedGames as List<Object?>) {
+    dynamic upGames = (updatedGames is List<Object?>) ? updatedGames : updatedGames.values.toList() ;
+    for(var game in upGames as List<Object?>) {
       if(game != null) {
         dynamic hashedMap = jsonDecode(jsonEncode(game));
         var map = HashMap.from(hashedMap);
@@ -84,39 +84,8 @@ class _SearchGameState extends State<SearchGame> {
     _databaseService.searchAvailableGames(listFoundedGames,checkRemovedGames, checkUpdates);
 
   }
-  @override
-  void dispose() {
-    super.dispose();
-    print("dispose");
-  }
 
-  // Widget _listItem(key) {
-  //   String? cPlayerCnt = games[key]?.currentNumberOfPlayers.toString();
-  //   String? mPlayerCnt = games[key]?.maxNumberOfPlayers.toString();
-  //   String? beginStory = games[key]?.story;
-  //   String? id = games[key]?.id.toString();
-  //   return Container(
-  //     padding: const EdgeInsets.all(10),
-  //     child: ListTile(
-  //       onLongPress: () {
-  //           _databaseService.joinGame("a", games[key] as GameRoom);
-  //           Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //             return  const MyGames(title: "test");
-  //           }));
-  //       },
-  //       leading: Text(id ?? "", style: const TextStyle(fontSize: 18)),
-  //       title: Text(
-  //         beginStory ?? "",
-  //         style: const TextStyle(fontSize: 14,fontStyle: FontStyle.italic),
-  //       ),
-  //       trailing: Chip(label: Text('$cPlayerCnt/$mPlayerCnt',
-  //           style: const TextStyle(fontSize: 18, color: Colors.purple)),
-  //       )
-  //     ),
-  //     decoration: const BoxDecoration(
-  //         border: Border(bottom: BorderSide(width: 1, color: Colors.black26))),
-  //   );
-  // }
+  static const TextStyle _textStyle = TextStyle(fontSize: 15,fontWeight: FontWeight.bold);
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +100,14 @@ class _SearchGameState extends State<SearchGame> {
                 padding: const EdgeInsets.all(10),
                 color: Colors.amber,
                 child: const ListTile(
-                  leading: Text('ID'),
-                  title: Text('Story'),
-                  trailing: Text('Players'),
+                  leading: Padding(
+                    padding: EdgeInsets.only(top: 8.0,bottom: 8.0),
+                    child: Text('ID',style: _textStyle),
+                  ),
+                  title: Center(
+                    child: Text('Hikaye',style: _textStyle),
+                  ),
+                  trailing: Text('Oyuncular',style: _textStyle),
                 ),
               ),
               Expanded(

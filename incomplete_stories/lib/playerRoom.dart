@@ -1,8 +1,5 @@
 import 'dart:async';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:incomplete_stories/Components/bottomSheet.dart';
 import 'package:incomplete_stories/models/answer.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
@@ -76,11 +73,13 @@ class _PlayerRoomState extends State<PlayerRoom> {
   }
 
   void _scrollDown() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
-      duration: Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
+    if(_controller.hasClients) {
+      _controller.animateTo(
+        _controller.position.maxScrollExtent,
+        duration: Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+    }
   }
 
   @override
@@ -134,7 +133,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        playingGames[widget.roomID]?.story ?? "",
+                        playingGames[widget.roomID]?.bOfStory ?? "",
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
@@ -166,7 +165,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
         child: Consumer<AppContext>(
             builder : (context,s,_) {
               s.qPlayedGames[widget.roomID]?.sort((a, b) => a.date.compareTo(b.date));
-              return ListView.builder(
+              return s.qPlayedGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
                 itemCount: s.qPlayedGames[widget.roomID]?.length,
                 shrinkWrap: false,
                 controller: _controller,
@@ -241,7 +240,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
                     ),
                   );
                 },
-              );
+              ): Container();
             }
         ),
       ),
@@ -250,7 +249,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
               child: Consumer<AppContext>(
                   builder : (context,s,_) {
                     s.aPlayedGames[widget.roomID]?.sort((a, b) => a.date.compareTo(b.date));
-                    return ListView.builder(
+                    return s.aPlayedGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
                       itemCount: s.aPlayedGames[widget.roomID]?.length,
                       shrinkWrap: false,
                       controller: _controller,
@@ -298,7 +297,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
                           return Container();
                         }
                                 },
-                    );
+                    ) : Container();
                   }
               ),
             ),

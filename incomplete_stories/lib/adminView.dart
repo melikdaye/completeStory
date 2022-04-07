@@ -250,7 +250,7 @@ class _AdminViewState extends State<AdminView> {
                 label: 'Sorular',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.gamepad),
+                icon: Icon(Icons.message),
                 label: 'Hikaye Tahminleri',
               ),
             ],

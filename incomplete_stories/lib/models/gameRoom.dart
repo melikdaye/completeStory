@@ -3,6 +3,7 @@ import 'dart:convert';
 class GameRoom {
 
   late String story = "";
+  late String bOfStory = "";
   late bool autoStart = false;
   late int currentNumberOfPlayers = 0;
   late int maxNumberOfPlayers = 1;
@@ -16,6 +17,7 @@ class GameRoom {
 
   GameRoom.fromJson(Map<dynamic, dynamic> json):
       story = json['story'],
+      bOfStory = json['bOfStory'] ?? "",
       autoStart = json["autoStart"],
       currentNumberOfPlayers = json["currentNumberOfPlayers"],
       maxNumberOfPlayers = json["maxNumberOfPlayers"],
@@ -28,6 +30,7 @@ class GameRoom {
 
   Map<String, dynamic> toJson() => {
     'story': story,
+    'bOfStory' : bOfStory,
     'autoStart': autoStart,
     'currentNumberOfPlayers' : currentNumberOfPlayers,
     'maxNumberOfPlayers' : maxNumberOfPlayers,
