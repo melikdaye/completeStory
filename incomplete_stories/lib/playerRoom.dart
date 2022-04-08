@@ -219,7 +219,7 @@ class _PlayerRoomState extends State<PlayerRoom> {
                             if(s.qPlayedGames[widget.roomID]?[index].ownerID !=
                                 "a" &&
                                 !(s.qPlayedGames[widget.roomID]?[index].viewedBy
-                                    .contains("a") ?? false))
+                                    .contains("a") ?? false) &&s.qPlayedGames[widget.roomID]?[index].answer!=3)
                               IconButton(onPressed: () {
                                 showQuestion(s.qPlayedGames[widget.roomID]?[index]);
                               }, icon: Icon(Icons.remove_red_eye)),

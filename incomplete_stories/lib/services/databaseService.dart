@@ -1,8 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
+import 'package:incomplete_stories/provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import 'package:incomplete_stories/models/answer.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/models/question.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
 
@@ -204,6 +206,28 @@ class DatabaseService {
     await qRef.remove();
     DatabaseReference aRef = getCollectionRef('answers/${gameRoom.id}');
     await aRef.remove();
+  }
+
+  Future<bool> createUser(String email,String playerName) async{
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var uuid = Uuid();
+    dynamic id = uuid.v4();
+    users.add({
+          'playerName': playerName, // John Doe
+          'email': email, // Stokes and Sons
+          'uid' : id ,
+          'credits': 5 // 42
+    }).then((value) {
+      AppContext(id,playerName);
+      return true;}).catchError((error) {return false;});
+
+    return false;
+  }
+
+  Future<bool> isUserExist(String uid) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    users.where("uid",isEqualTo: uid).get().then((value) {return true;}).catchError((onError){return false;});
+    return false;
   }
 
 

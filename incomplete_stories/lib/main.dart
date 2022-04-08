@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
@@ -5,15 +6,17 @@ import 'package:incomplete_stories/login.dart';
 import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
+import 'package:incomplete_stories/services/databaseService.dart';
 import 'package:provider/provider.dart';
-
+import 'package:incomplete_stories/services/authService.dart';
 void main() {
   runApp(ChangeNotifierProvider(
-      create: (context) => AppContext(), child: const MyApp()));
+      create: (context) => AppContext.empty(), child:  MyApp()));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
 
   // This widget is the root of your application.
   @override
@@ -28,6 +31,7 @@ class MyApp extends StatelessWidget {
           }
           // Once complete, sho your application
           if (snapshot.connectionState == ConnectionState.done) {
+            late dynamic uid = Provider.of<AppContext>(context, listen: true).uid;
             return MaterialApp(
               title: 'Flutter Demo',
               theme: ThemeData(
@@ -42,10 +46,10 @@ class MyApp extends StatelessWidget {
                 // is not restarted.
                 primarySwatch: Colors.blueGrey,
               ),
-              home: const MyGames(),
+
+              home: uid!=null ? const MyGames() : const LoginPage(),
             );
           }
-          ;
           return const Text("waiting", textDirection: TextDirection.ltr);
         });
   }

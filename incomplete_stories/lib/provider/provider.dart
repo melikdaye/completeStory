@@ -6,7 +6,7 @@ import 'package:incomplete_stories/models/answer.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
 import 'package:incomplete_stories/models/question.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppContext extends ChangeNotifier {
   /// Internal, private state of the cart.
@@ -20,18 +20,52 @@ class AppContext extends ChangeNotifier {
   late Map<dynamic,List<Answer>> aOfGames = {};
   late Map<dynamic,List<Question>> qPlayedGames = {};
   late Map<dynamic,List<Answer>> aPlayedGames = {};
+  late SharedPreferences prefs;
+  late dynamic uid = null;
+  late String playerName;
 
   late int selectedIndexBottomBar = 2;
 
+  Future<void> getSharedPreferences() async { // method
+      prefs = await  SharedPreferences.getInstance();
+  }
 
-  AppContext() {
+  AppContext.empty() {
     print("init provider");
-    _databaseService.getManagedPreGames(
-        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-    _databaseService.getManagedPlayingGames(
-        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-    _databaseService.getInLobbyRooms("a", updateGames);
-    _databaseService.getInGameRooms("a", updateGames);
+    getSharedPreferences().then((_)  {
+      uid = prefs.getString("uid");
+      if(uid != null) {
+        _databaseService.getManagedPreGames(
+            "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
+        _databaseService.getManagedPlayingGames(
+            "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
+        _databaseService.getInLobbyRooms("a", updateGames);
+        _databaseService.getInGameRooms("a", updateGames);
+      }
+    });
+    notifyListeners();
+
+  }
+
+  AppContext(String id,String playerName) {
+    print("init provider");
+    getSharedPreferences().then((_)  {
+        prefs.setString("uid",id);
+        uid = id;
+        playerName = playerName;
+        if(uid != null) {
+          _databaseService.getManagedPreGames(
+              "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
+          _databaseService.getManagedPlayingGames(
+              "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
+          _databaseService.getInLobbyRooms("a", updateGames);
+          _databaseService.getInGameRooms("a", updateGames);
+        }else{
+
+        }
+    });
+    notifyListeners();
+
   }
 
   updateRoomStatus(dynamic updates){
@@ -188,6 +222,14 @@ class AppContext extends ChangeNotifier {
     notifyListeners();
   }
 
+  setUID(String uid){
+    uid = uid;
+    notifyListeners();
+  }
+  setPlayerName(String playerName){
+    playerName = playerName;
+    notifyListeners();
+  }
 
 
 
