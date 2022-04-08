@@ -186,5 +186,25 @@ class DatabaseService {
     qRef.update({"savedBy": question.viewedBy});
   }
 
+  Future<void> removeGame(GameRoom gameRoom) async {
+    late String gameStatus;
+    if(gameRoom.isWaiting){
+      gameStatus = "pre";
+    }
+    else{
+      gameStatus = "playing";
+    }
+    DatabaseReference ref = getCollectionRef('rooms/$gameStatus/${gameRoom.ownerID}/${gameRoom.id}');
+    await ref.remove();
+    for(var player in gameRoom.currentPlayers){
+      DatabaseReference userRef = getCollectionRef('users/$player/$gameStatus/${gameRoom.id}');
+      await userRef.remove();
+    }
+    DatabaseReference qRef = getCollectionRef('questions/${gameRoom.id}');
+    await qRef.remove();
+    DatabaseReference aRef = getCollectionRef('answers/${gameRoom.id}');
+    await aRef.remove();
+  }
+
 
 }
