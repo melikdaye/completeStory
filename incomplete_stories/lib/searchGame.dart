@@ -25,7 +25,7 @@ class _SearchGameState extends State<SearchGame> {
 
   void filterGames() {
     String uid = Provider.of<AppContext>(context,listen: false).uid;
-    games.removeWhere((key, value) => value.currentPlayers.contains(uid));
+    games.removeWhere((key, value) => value.ownerID == uid || value.currentPlayers.contains(uid));
     
     if(mounted) {
       setState(() {
