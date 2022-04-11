@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.incomplete_stories">
    <application
-        android:label="incomplete_stories"
+        android:label="Eksik Hikayeler"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

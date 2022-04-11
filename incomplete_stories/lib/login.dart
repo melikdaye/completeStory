@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/Components/googleSignInButton.dart';
-import 'package:incomplete_stories/myGames.dart';
-import 'package:incomplete_stories/provider/provider.dart';
-import 'package:incomplete_stories/services/databaseService.dart';
-import 'package:provider/provider.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -45,23 +41,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0 ,left: 0.0,bottom: 8.0),
-                      child: Text(
-                        'Eksik',
-                        style: TextStyle(
-                          color: Color(0xFFFF1E56),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0 ,left: 40.0,bottom: 0.0),
+                        child: Text(
+                          'Eksik',
+                          style: GoogleFonts.gloriaHallelujah(color: Color(0xFFFF1E56),fontWeight: FontWeight.bold,fontSize: 50),
                         ),
                       ),
                     ),
-                    Text(
-                      'Hikayeler',
-                      style: TextStyle(
-                        color: Color(0xFFFF1E56),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40,
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 0.0 ,right: 40.0,bottom: 0.0),
+                        child: Text(
+                          'Hikayeler',
+                          style:  GoogleFonts.gloriaHallelujah(color: Color(0xFFFF1E56),fontWeight: FontWeight.bold,fontSize: 50),
+                        ),
                       ),
                     ),
                   ],

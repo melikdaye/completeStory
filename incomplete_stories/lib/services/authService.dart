@@ -10,10 +10,8 @@ class AuthService {
 
     try {
        final User? user = (await _auth.signInAnonymously()).user;
-       print(user);
        return user;
     }catch(e){
-        print(e.toString());
         return null;
 
     }
@@ -83,6 +81,7 @@ class AuthService {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
+      googleSignIn.disconnect();
       await FirebaseAuth.instance.signOut();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

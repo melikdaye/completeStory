@@ -82,7 +82,6 @@ class _SearchGameState extends State<SearchGame> {
   @override
   void initState() {
     super.initState();
-    print("initState");
     _databaseService.searchAvailableGames(listFoundedGames,checkRemovedGames, checkUpdates);
 
   }
@@ -91,7 +90,6 @@ class _SearchGameState extends State<SearchGame> {
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return DefaultTabController(
       length: 3,
       child: Scaffold(

@@ -8,18 +8,15 @@ import 'package:incomplete_stories/services/databaseService.dart';
 import 'package:provider/provider.dart';
 
 
-class AdminView extends StatefulWidget {
-  const AdminView({Key? key, required this.roomID}) : super(key: key);
-  final int roomID;
+class CompletedView extends StatefulWidget {
+  const CompletedView({Key? key, required this.index}) : super(key: key);
+  final int index;
 
   @override
-  State<AdminView> createState() => _AdminViewState();
+  State<CompletedView> createState() => _CompletedViewState();
 }
 
-class _AdminViewState extends State<AdminView> {
-
-  late Map<dynamic, GameRoom> playingManagedGames =
-      Provider.of<AppContext>(context, listen: true).playingManagedGames;
+class _CompletedViewState extends State<CompletedView> {
 
   late bool isQuestion = true;
   late double amountOfBlur = 6;
@@ -30,23 +27,6 @@ class _AdminViewState extends State<AdminView> {
   Map<int,IconData> iconMap = {0:Icons.check_circle,1:Icons.cancel,2:Icons.block,3:Icons.hourglass_bottom};
   TextEditingController qFieldController = TextEditingController();
   final ScrollController _controller =  ScrollController();
-
-  final DatabaseService _databaseService = DatabaseService();
-
-
-
-  answerQuestion(Question question,int index){
-    question.answer = index;
-    _databaseService.updateAnswerOfQuestion(question);
-  }
-  answerGuess(Answer answer,GameRoom room ,int index){
-    answer.isCorrect = index;
-    _databaseService.replyAnswer(answer);
-    if(index == 0){
-      _databaseService.finishGame(Provider.of<AppContext>(context, listen: false),room,answer,answer.ownerID);
-      Navigator.pop(context);
-    }
-  }
 
   void _scrollDown() {
     if(_controller.hasClients) {
@@ -100,34 +80,6 @@ class _AdminViewState extends State<AdminView> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          playingManagedGames[widget.roomID]?.story ?? "",
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        Text(
-                          '${playingManagedGames[widget.roomID]?.currentNumberOfPlayers} / ${playingManagedGames[widget.roomID]?.maxNumberOfPlayers}',
-                          style: TextStyle(
-                              color: Colors.grey.shade600, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(onPressed: (){bottomSheet(playingManagedGames[widget.roomID] as GameRoom,null, 3, context);}, icon: const Icon(
-                      Icons.settings,
-                      color: Colors.black54)
-                  ),
                 ],
               ),
             ),
@@ -139,9 +91,9 @@ class _AdminViewState extends State<AdminView> {
               Expanded(
                 child: Consumer<AppContext>(
                     builder : (context,s,_) {
-                      s.qOfGames[widget.roomID]?.sort((a, b) => a.answer.compareTo(b.answer));
-                      return s.qOfGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
-                        itemCount: s.qOfGames[widget.roomID]?.length,
+                      s.completedGames[widget.index]["questions"]?.sort((a, b) => (a["answer"] as int).compareTo((b["answer"] as int)));
+                      return s.completedGames[widget.index]["questions"]?.isNotEmpty ?? false ? ListView.builder(
+                        itemCount: s.completedGames[widget.index]["questions"]?.length,
                         shrinkWrap: false,
                         controller: _controller,
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -155,31 +107,19 @@ class _AdminViewState extends State<AdminView> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
 
-                                    Icon(iconMap[s.qOfGames[widget.roomID]?[index].answer]),
+                                    Icon(iconMap[s.completedGames[widget.index]["questions"]?[index]["answer"]]),
                                     Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
-                                        color:  colorMap[s.qOfGames[widget.roomID]?[index].answer],
+                                        color:  colorMap[s.completedGames[widget.index]["questions"]?[index]["answer"]],
                                       ),
                                       padding: const EdgeInsets.all(16),
                                       child: Text(
-                                          s.qOfGames[widget.roomID]?[index].question ??
+                                          s.completedGames[widget.index]["questions"]?[index]["question"] ??
                                               "",
                                           style: const TextStyle(fontSize: 15)),
 
                                     ),
-                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                      IconButton(onPressed: () {
-                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,0);
-                                      }, icon: const Icon(Icons.check_circle),color:Colors.green,tooltip: "Evet",),
-                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                      IconButton(onPressed: () {
-                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,1);
-                                      }, icon: const Icon(Icons.cancel),color: Colors.red,tooltip: "Hayır"),
-                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                      IconButton(onPressed: () {
-                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,2);
-                                      }, icon: const Icon(Icons.block),color: Colors.grey,tooltip:"Alakasız"),
                                   ]
 
                               ),
@@ -194,9 +134,9 @@ class _AdminViewState extends State<AdminView> {
               Expanded(
                 child: Consumer<AppContext>(
                     builder : (context,s,_) {
-                      s.aOfGames[widget.roomID]?.sort((a, b) => a.isCorrect.compareTo(b.isCorrect));
-                      return s.aOfGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
-                        itemCount: s.aOfGames[widget.roomID]?.length,
+                      s.completedGames[widget.index]["answers"]?.sort((a, b) => (a["isCorrect"] as int).compareTo((b["isCorrect"] as int)));
+                      return s.completedGames[widget.index]["answers"]?.isNotEmpty ?? false ? ListView.builder(
+                        itemCount: s.completedGames[widget.index]["answers"]?.length,
                         shrinkWrap: false,
                         controller: _controller,
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -210,28 +150,19 @@ class _AdminViewState extends State<AdminView> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
 
-                                    Icon(iconMap[s.aOfGames[widget.roomID]?[index].isCorrect]),
+                                    Icon(iconMap[s.completedGames[widget.index]["answers"]?[index]["isCorrect"]]),
                                     Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
-                                        color:  colorMap[s.aOfGames[widget.roomID]?[index].isCorrect],
+                                        color:  colorMap[s.completedGames[widget.index]["answers"]?[index]["isCorrect"]],
                                       ),
                                       padding: const EdgeInsets.all(16),
                                       child: Text(
-                                          s.aOfGames[widget.roomID]?[index].answer ??
+                                          s.completedGames[widget.index]["answers"]?[index]["answer"] ??
                                               "",
                                           style: const TextStyle(fontSize: 15)),
 
                                     ),
-                                    if(s.aOfGames[widget.roomID]?[index].isCorrect == 3)
-                                      IconButton(onPressed: () {
-                                        answerGuess(s.aOfGames[widget.roomID]?[index] as Answer,playingManagedGames[widget.roomID] as GameRoom,0);
-                                      }, icon: const Icon(Icons.check_circle),color:Colors.green,tooltip: "Evet",),
-                                    if(s.aOfGames[widget.roomID]?[index].isCorrect == 3)
-                                      IconButton(onPressed: () {
-                                        answerGuess(s.aOfGames[widget.roomID]?[index]  as Answer,playingManagedGames[widget.roomID] as GameRoom,1);
-                                      }, icon: const Icon(Icons.cancel),color: Colors.red,tooltip: "Hayır"),
-
                                   ]
 
                               ),

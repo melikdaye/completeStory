@@ -89,9 +89,6 @@ Future<dynamic> bottomSheet(GameRoom gameRoom,dynamic questions,mode,context){
               onTap: () {
                 Navigator.pop(context);
                 listUser(context, gameRoom);
-                print(gameRoom.currentPlayers);
-
-                // Navigator.pop(context);
               },
             ),
             if(mode==2 )

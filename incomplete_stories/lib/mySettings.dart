@@ -51,164 +51,182 @@ class _MySettingsState extends State<MySettings> {
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
-
-    final image = NetworkImage(user?.photoURL ?? "");
+    if (user != null){
+      final image = NetworkImage(user.photoURL ?? "");
     return GestureDetector(
-        onTap: () {
-          FocusScopeNode currentFocus = FocusScope.of(context);
+      onTap: () {
+        FocusScopeNode currentFocus = FocusScope.of(context);
 
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-        },
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xFFFB3640),
         ),
-        body: ListView(
-          physics: BouncingScrollPhysics(),
-          children: [
-            const SizedBox(height: 24),
-            Center(
-              child: Stack(
-                children: [
-                  ClipOval(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink.image(
-                        image: image,
-                        fit: BoxFit.cover,
-                        width: 128,
-                        height: 128,
-                        child: InkWell(onTap: (){}),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            buildName(user!),
-            const SizedBox(height: 24),
-            NumbersWidget(),
-            const SizedBox(height: 48),
-        Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: edit ? 68 : 88),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if(edit)
-                Row(
+        body: Container(
+          color: Color(0xFFFFF6EA),
+          child: ListView(
+            physics: BouncingScrollPhysics(),
+            children: [
+              const SizedBox(height: 24),
+              Center(
+                child: Stack(
                   children: [
-                    SizedBox(
-                      width : 150,
-                      child: TextField(
-                        maxLines: null,
-                        controller: qFieldController,
-                        keyboardType: TextInputType.multiline,
-                        scrollPhysics: ScrollPhysics(),
-                        decoration: InputDecoration(
-                            hintText: "Change Player Name",
-                            hintStyle: TextStyle(color: Colors.black54),
-                            border: InputBorder.none),
+                    ClipOval(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink.image(
+                          image: image,
+                          fit: BoxFit.cover,
+                          width: 128,
+                          height: 128,
+                          child: InkWell(onTap: () {}),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(onPressed: (){setState(() {
-                      _databaseService.setPlayerName(user.uid, qFieldController.text);
-                      Provider.of<AppContext>(context,listen: false).setPlayerName(qFieldController.text);
-                      edit = !edit;
-                    });}, icon: Icon(Icons.save)),
-                    IconButton(onPressed: (){setState(() {
-                      edit = !edit;
-                    });}, icon: Icon(Icons.cancel))
                   ],
                 ),
-                if(!edit)
+              ),
+              const SizedBox(height: 24),
+              buildName(user),
+              const SizedBox(height: 24),
+              NumbersWidget(),
+              const SizedBox(height: 48),
+              Center(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: edit ? 68 : 88),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if(edit)
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 150,
+                              child: TextField(
+                                maxLines: null,
+                                controller: qFieldController,
+                                keyboardType: TextInputType.multiline,
+                                scrollPhysics: ScrollPhysics(),
+                                decoration: InputDecoration(
+                                    hintText: "Change Player Name",
+                                    hintStyle: TextStyle(color: Colors.black54),
+                                    border: InputBorder.none),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(onPressed: () {
+                              setState(() {
+                                _databaseService.setPlayerName(
+                                    user.uid , qFieldController.text);
+                                Provider.of<AppContext>(context, listen: false)
+                                    .setPlayerName(qFieldController.text);
+                                edit = !edit;
+                              });
+                            }, icon: Icon(Icons.save)),
+                            IconButton(onPressed: () {
+                              setState(() {
+                                edit = !edit;
+                              });
+                            }, icon: Icon(Icons.cancel))
+                          ],
+                        ),
+                      if(!edit)
+                        Consumer<AppContext>(builder: (context, s, _) {
+                          return Row(
+                            children: [
+                              const Text("Oyuncu Adı :", style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                              const SizedBox(width: 18),
+                              Text(s.userProps["playerName"],
+                                style: TextStyle(fontSize: 16),),
+                              const SizedBox(width: 8),
+                              IconButton(onPressed: () {
+                                setState(() {
+                                  edit = !edit;
+                                });
+                              }, icon: Icon(Icons.edit))
+                            ],
+                          );
+                        }),
                       Consumer<AppContext>(builder: (context, s, _) {
-                        print('playerName ${s.uid}');
                         return Row(
                           children: [
-                            const Text("Oyuncu Adı :",style : TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text("Kredi :", style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                             const SizedBox(width: 18),
-                            Text(s.userProps["playerName"],style: TextStyle(fontSize: 16),),
+                            Text(s.userProps["credits"].toString(),
+                              style: TextStyle(fontSize: 16),),
                             const SizedBox(width: 8),
-                            IconButton(onPressed: (){setState(() {
-                              edit = !edit;
-                            });}, icon: Icon(Icons.edit))
                           ],
                         );
                       }),
-                Consumer<AppContext>(builder: (context, s, _) {
-                  return Row(
-                    children: [
-                      const Text("Kredi :",style : TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(width: 18),
-                      Text(s.userProps["credits"].toString(),style: TextStyle(fontSize: 16),),
-                      const SizedBox(width: 8),
+                      const SizedBox(height: 50),
+                      _isSigningOut
+                          ? CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                          : ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            Colors.redAccent,
+                          ),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            _isSigningOut = true;
+                          });
+                          await AuthService.signOut(context: context);
+                          setState(() {
+                            _isSigningOut = false;
+                          });
+                          Navigator.of(context)
+                              .pushReplacement(_routeToSignInScreen());
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: Text(
+                            'Oturumu Kapat',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+
                     ],
-                  );
-                }),
-                const SizedBox(height: 50),
-                _isSigningOut
-                    ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-                    : ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Colors.redAccent,
-                    ),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  onPressed: () async {
-                    setState(() {
-                      _isSigningOut = true;
-                    });
-                    await AuthService.signOut(context: context);
-                    setState(() {
-                      _isSigningOut = false;
-                    });
-                    Navigator.of(context)
-                        .pushReplacement(_routeToSignInScreen());
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: Text(
-                      'Oturumu Kapat',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    ),
                   ),
                 ),
-
-              ],
-            ),
+              ),
+            ],
           ),
-        ),],
         ),
       ),
     );
+  }else{
+      return Container();
+    }
   }
 
-  Widget buildName(User user) => Column(
+  Widget buildName(User? user) => Column(
     children: [
       Text(
-        user.displayName ?? "",
+        user?.displayName ?? "",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
       ),
       const SizedBox(height: 4),
       Text(
-        user.email ?? "",
+        user?.email ?? "",
         style: TextStyle(color: Colors.grey),
       )
     ],

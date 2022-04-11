@@ -15,16 +15,13 @@ class DatabaseService {
   }
 
   Future<void> createGameRoom(GameRoom gameRoom) async {
-    //print(gameRoom.toString());
     DatabaseReference refRoomCount = getCollectionRef('numberOfRooms');
     final snapshot  = await refRoomCount.get();
     if (snapshot.exists) {
       String numberOfRooms = snapshot.value.toString();
-      //print(numberOfRooms);
       String uid  = gameRoom.ownerID;
       gameRoom.id = int.parse(numberOfRooms);
       DatabaseReference ref = getCollectionRef('rooms/pre/$uid/$numberOfRooms');
-      //print(gameRoom.toJson());
       await ref.set(gameRoom.toJson());
       await refRoomCount.set(int.parse(numberOfRooms) + 1);
     }
@@ -36,15 +33,11 @@ class DatabaseService {
     gameIDStream.listen((event) {
       dynamic games = event.snapshot.value;
       if(games != null) {
-        print("ınlobby rooms $games");
         dynamic _games = (games is Iterable<dynamic>) ? games : games.values.toList() ;
         for (var id in _games as Iterable<dynamic>) {
-          //print(id);
           String path = id.toString().replaceAll("-", "/");
-          //print(path);
           DatabaseReference pref = getCollectionRef('rooms/pre/$path');
           pref.onValue.listen((event) {
-            //print("add ${event.snapshot.value}");
             callBack(event.snapshot.value);
           });
         }
@@ -60,12 +53,9 @@ class DatabaseService {
       if(games != null) {
         dynamic _games = (games is Iterable<dynamic>) ? games : games.values.toList() ;
         for (var id in _games as Iterable<dynamic>) {
-          //print(id);
           String path = id.toString().replaceAll("-", "/");
-          //print(path);
           DatabaseReference pref = getCollectionRef('rooms/playing/$path');
           pref.onValue.listen((event) {
-            //print("add ${event.snapshot.value}");
             callBack(event.snapshot.value);
           });
         }
@@ -224,9 +214,7 @@ class DatabaseService {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     bool exist = false;
     await users.where("uid",isEqualTo: uid).get().then((value) {
-      print("exist");
       exist = true;}).catchError((onError){
-        print("creating");
       users.add({
         'uid' : uid,
         'credits': 50,
@@ -238,9 +226,9 @@ class DatabaseService {
         "totalQ" : 0,
         "totalA" : 0,
       }).then((value) {
-        print("created");
+
         exist = true;}).catchError((error) {
-          print("failed");exist = false;});
+      exist = false;});
     });
     return exist;
   }
@@ -250,7 +238,6 @@ class DatabaseService {
     late dynamic userData = {};
     await users.where("uid",isEqualTo: uid).get().then((value) {
       userData = jsonDecode(jsonEncode(value.docs.first.data()));
-      print("getUserProps $userData");
     }).catchError((onError){});
 
     return userData;
@@ -338,9 +325,7 @@ class DatabaseService {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     var querySnapshot = await users.where("uid", isEqualTo: uid).get();
     for (var doc in querySnapshot.docs) {
-      print(doc.data().toString());
       if (doc.data().toString().contains("playerName")) {
-        print(doc["playerName"]);
         return doc["playerName"] ?? "";
       }
     }
@@ -360,7 +345,6 @@ class DatabaseService {
   }
 
   Future<void> setTotalQ(String uid) async{
-    print(uid);
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     var querySnapshot = await users.where("uid",isEqualTo: uid).get();
     for(var doc in querySnapshot.docs){

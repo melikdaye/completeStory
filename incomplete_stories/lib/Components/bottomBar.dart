@@ -50,7 +50,8 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Color(0xFFF14A16),
+        backgroundColor: Color(0xFF06113C),
+        unselectedItemColor: Color(0xFFFF8C32),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.search),

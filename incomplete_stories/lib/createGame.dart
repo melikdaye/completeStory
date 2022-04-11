@@ -15,7 +15,8 @@ class CreateGamePage extends StatefulWidget {
 class _CreateGamePageState extends State<CreateGamePage> {
 
   final DatabaseService _databaseService = DatabaseService();
-  late final GameRoom _gameRoom = GameRoom.empty("y7cPlFnzUNRZi3jTirbOPdW4bbC3");
+  late String uid = Provider.of<AppContext>(context,listen: true).uid;
+  late final GameRoom _gameRoom = GameRoom.empty(uid);
   final storyFieldController = TextEditingController();
   final storyPartFieldController = TextEditingController();
 

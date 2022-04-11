@@ -14,13 +14,14 @@ void main() {
       create: (context) => AppContext.empty(), child:  MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget{
   MyApp({Key? key}) : super(key: key);
   late bool userExist = false;
   final DatabaseService _databaseService = DatabaseService();
   // This widget is the root of your application.
-  Future<void> isUserExist(uid) async { // method
+  Future<bool> isUserExist(uid) async { // method
     userExist = await _databaseService.createUser(uid);
+    return userExist;
   }
   @override
   Widget build(BuildContext context) {
@@ -35,33 +36,75 @@ class MyApp extends StatelessWidget {
           // Once complete, sho your application
           if (snapshot.connectionState == ConnectionState.done) {
             User? user = FirebaseAuth.instance.currentUser;
-            print(user);
-            if(user!=null){
-              isUserExist(user.uid);
-              print(userExist);
-              if(userExist) {
-                Provider.of<AppContext>(context,listen: false).fillStore(user.uid);
-              }
+            if (user != null && !user.isAnonymous) {
+              return FutureBuilder<bool>(
+                  future: isUserExist(user.uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.data ?? false) {
+                      Provider.of<AppContext>(context, listen: false).fillStore(
+                          user.uid);
+                      return MaterialApp(
+                        title: 'Flutter Demo',
+                        theme: ThemeData(
+                          // This is the theme of your application.
+                          //
+                          // Try running your application with "flutter run". You'll see the
+                          // application has a blue toolbar. Then, without quitting the app, try
+                          // changing the primarySwatch below to Colors.green and then invoke
+                          // "hot reload" (press "r" in the console where you ran "flutter run",
+                          // or simply save your changes to "hot reload" in a Flutter IDE).
+                          // Notice that the counter didn't reset back to zero; the application
+                          // is not restarted.
+                          primarySwatch: Colors.orange,
+                        ),
+                        // home: MyGames(),
+                        home: const MyGames()
+
+                      );
+                    }
+                    else{
+                      return MaterialApp(
+                        title: 'Flutter Demo',
+                        theme: ThemeData(
+                          // This is the theme of your application.
+                          //
+                          // Try running your application with "flutter run". You'll see the
+                          // application has a blue toolbar. Then, without quitting the app, try
+                          // changing the primarySwatch below to Colors.green and then invoke
+                          // "hot reload" (press "r" in the console where you ran "flutter run",
+                          // or simply save your changes to "hot reload" in a Flutter IDE).
+                          // Notice that the counter didn't reset back to zero; the application
+                          // is not restarted.
+                          primarySwatch: Colors.orange,
+                        ),
+                        // home: MyGames(),
+                        home:  const LoginPage(),
+                      );
+                    }
+                  }
+              );
             }
-            return MaterialApp(
-              title: 'Flutter Demo',
-              theme: ThemeData(
-                // This is the theme of your application.
-                //
-                // Try running your application with "flutter run". You'll see the
-                // application has a blue toolbar. Then, without quitting the app, try
-                // changing the primarySwatch below to Colors.green and then invoke
-                // "hot reload" (press "r" in the console where you ran "flutter run",
-                // or simply save your changes to "hot reload" in a Flutter IDE).
-                // Notice that the counter didn't reset back to zero; the application
-                // is not restarted.
-                primarySwatch: Colors.blueGrey,
-              ),
-              // home: MyGames(),
-              home: user!=null ? const MyGames() : const LoginPage(),
-            );
+
+
           }
-          return const Text("waiting", textDirection: TextDirection.ltr);
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              // This is the theme of your application.
+              //
+              // Try running your application with "flutter run". You'll see the
+              // application has a blue toolbar. Then, without quitting the app, try
+              // changing the primarySwatch below to Colors.green and then invoke
+              // "hot reload" (press "r" in the console where you ran "flutter run",
+              // or simply save your changes to "hot reload" in a Flutter IDE).
+              // Notice that the counter didn't reset back to zero; the application
+              // is not restarted.
+              primarySwatch: Colors.orange,
+            ),
+            // home: MyGames(),
+            home:  const LoginPage(),
+          );
         });
   }
+
 }

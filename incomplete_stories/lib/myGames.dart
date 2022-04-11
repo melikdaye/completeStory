@@ -111,7 +111,7 @@ class _MyGamesState extends State<MyGames> {
           return ListView.builder(
               itemCount: s.completedGames.length,
               itemBuilder: (_, index) {
-                return listItemCompleted(s.completedGames[index], _databaseService, context);
+                return listItemCompleted(s.completedGames[index], _databaseService, context,index);
               }
           );
         },

@@ -214,7 +214,6 @@ class _PlayerRoomState extends State<PlayerRoom> {
               for(var i in indexes){
                   amountOfBlur[i] = 0;
               }
-              print(amountOfBlur);
               return s.qPlayedGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
                 itemCount: s.qPlayedGames[widget.roomID]?.length,
                 shrinkWrap: false,
