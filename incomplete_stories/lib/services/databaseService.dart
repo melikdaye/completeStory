@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:incomplete_stories/provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -146,6 +148,8 @@ class DatabaseService {
     final newKey = roomRef.push().key;
     DatabaseReference qRef = getCollectionRef('questions/${gameRoom.id}/$newKey');
     await qRef.set(question.toJson());
+    await setTotalQ(question.ownerID);
+
   }
 
   Future<void> getQuestionOfGame(GameRoom gameRoom,void Function(dynamic id,dynamic updates) callBack)async {
@@ -173,7 +177,15 @@ class DatabaseService {
     final newKey = roomRef.push().key;
     DatabaseReference qRef = getCollectionRef('answers/${gameRoom.id}/$newKey');
     await qRef.set(answer.toJson());
+    await setTotalA(answer.ownerID);
   }
+
+  Future<void> replyAnswer(Answer answer)async {
+    DatabaseReference qRef = getCollectionRef(
+        'answers/${answer.roomID}/${answer.id}');
+    qRef.update({"isCorrect": answer.isCorrect});
+  }
+
   Future<void> updateViewedPlayers(Question question,String uid)async {
     DatabaseReference qRef = getCollectionRef(
         'questions/${question.roomID}/${question.id}');
@@ -208,27 +220,180 @@ class DatabaseService {
     await aRef.remove();
   }
 
-  Future<bool> createUser(String email,String playerName) async{
+  Future<bool> createUser(String uid) async{
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-    var uuid = Uuid();
-    dynamic id = uuid.v4();
-    users.add({
-          'playerName': playerName, // John Doe
-          'email': email, // Stokes and Sons
-          'uid' : id ,
-          'credits': 5 // 42
-    }).then((value) {
-      AppContext(id,playerName);
-      return true;}).catchError((error) {return false;});
+    bool exist = false;
+    await users.where("uid",isEqualTo: uid).get().then((value) {
+      print("exist");
+      exist = true;}).catchError((onError){
+        print("creating");
+      users.add({
+        'uid' : uid,
+        'credits': 50,
+        "playerName" : "",
+        "winGames" : 0,
+        "playedGames" : 0,
+        "correctQ" : 0,
+        "correctA" : 0,
+        "totalQ" : 0,
+        "totalA" : 0,
+      }).then((value) {
+        print("created");
+        exist = true;}).catchError((error) {
+          print("failed");exist = false;});
+    });
+    return exist;
+  }
 
+  Future<Map> getUserProps(String uid) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    late dynamic userData = {};
+    await users.where("uid",isEqualTo: uid).get().then((value) {
+      userData = jsonDecode(jsonEncode(value.docs.first.data()));
+      print("getUserProps $userData");
+    }).catchError((onError){});
+
+    return userData;
+  }
+
+  Future<void> finishGame(AppContext context,GameRoom room,Answer answer,dynamic winnerID) async {
+
+    DatabaseReference ref = getCollectionRef('rooms/playing/${room.ownerID}/${room.id}');
+    await ref.update({"gameOver":true});
+    int willEarn = (winnerID!=null) ? 10 : 1;
+
+    for(var user in room.currentPlayers){
+      willEarn = 10;
+      int gameWin = 0;
+      if(user == winnerID){
+         willEarn = 50;
+         gameWin = 1;
+      }
+      CollectionReference users = FirebaseFirestore.instance.collection('users');
+      var querySnapshot = await users.where("uid",isEqualTo: user).get();
+      for(var doc in querySnapshot.docs){
+          await doc.reference.update({
+            "credits" : doc['credits'] + willEarn,
+            "playedGames" : (doc.data().toString().contains("playedGames")? doc['playedGames'] :0) + 1,
+            "winGames" : (doc.data().toString().contains("winGames")? doc['winGames'] :0) + gameWin,
+            "correctA" : (doc.data().toString().contains("correctA")? doc['correctA'] :0) + gameWin,
+          });
+      }
+    }
+    int adminCredits = winnerID!=null ? 50 : -5;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: room.ownerID).get();
+    for(var doc in querySnapshot.docs){
+      await doc.reference.update({
+        "credits" : doc['credits'] + adminCredits,
+        "manageGames" : (doc.data().toString().contains("manageGames")?doc["manageGames"] :0) + 1,
+      });
+    }
+    CollectionReference rooms = FirebaseFirestore.instance.collection('rooms');
+    await rooms.add({
+       ...(room.toJson()),
+      "winner" : winnerID,
+      "correctAnswer" : answer.answer,
+      "questions" : context.qOfGames[room.id]?.map((e) => e.toJson()).toList(),
+      "answers" : context.aOfGames[room.id]?.map((e) => e.toJson()).toList(),
+    });
+
+    removeGame(room);
+
+  }
+
+  Future<List> getCompletedGames (String uid) async{
+    CollectionReference games = FirebaseFirestore.instance.collection('rooms');
+    var managedQuery = await games.where("ownerID",isEqualTo: uid).get();
+    var playedQuery = await games.where("currentPlayers",arrayContains: uid).get();
+    List compGames = [];
+    for(var game in managedQuery.docs){
+        compGames.add(game.data());
+    }
+    for(var game in playedQuery.docs){
+      compGames.add(game.data());
+    }
+
+    return compGames;
+
+  }
+
+  Future<bool> buySomething(String uid,dynamic price) async{
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: uid).get();
+    for(var doc in querySnapshot.docs){
+         if(doc['credits']>=price){
+           await doc.reference.update({
+             "credits" : doc['credits'] - price,
+           });
+           return true;
+         }else{
+           return false;
+         }
+    }
     return false;
   }
 
-  Future<bool> isUserExist(String uid) async {
+  Future<String> getPlayerName (String uid) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-    users.where("uid",isEqualTo: uid).get().then((value) {return true;}).catchError((onError){return false;});
-    return false;
+    var querySnapshot = await users.where("uid", isEqualTo: uid).get();
+    for (var doc in querySnapshot.docs) {
+      print(doc.data().toString());
+      if (doc.data().toString().contains("playerName")) {
+        print(doc["playerName"]);
+        return doc["playerName"] ?? "";
+      }
+    }
+    return "";
   }
+
+  Future<void> setPlayerName(String uid,String playerName) async{
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: uid).get();
+    for(var doc in querySnapshot.docs){
+
+        await doc.reference.update({
+          "playerName" : playerName,
+        });
+    }
+
+  }
+
+  Future<void> setTotalQ(String uid) async{
+    print(uid);
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: uid).get();
+    for(var doc in querySnapshot.docs){
+
+      await doc.reference.update({
+        "totalQ" : (doc.data().toString().contains("totalQ")? doc['totalQ'] :0) + 1,
+      });
+    }
+
+  }
+  Future<void> setTotalA(String uid) async{
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: uid).get();
+    for(var doc in querySnapshot.docs){
+
+      await doc.reference.update({
+        "totalA" : (doc.data().toString().contains("totalA")? doc['totalA'] :0) + 1,
+      });
+    }
+
+  }
+  Future<void> setCorrectQ(String uid) async{
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var querySnapshot = await users.where("uid",isEqualTo: uid).get();
+    for(var doc in querySnapshot.docs){
+
+      await doc.reference.update({
+        "correctQ" : (doc.data().toString().contains("correctQ")? doc['correctQ'] :0) + 1,
+      });
+    }
+
+  }
+
 
 
 }

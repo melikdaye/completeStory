@@ -16,9 +16,12 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
-
-
+  late bool userExist = false;
+  final DatabaseService _databaseService = DatabaseService();
   // This widget is the root of your application.
+  Future<void> isUserExist(uid) async { // method
+    userExist = await _databaseService.createUser(uid);
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -31,7 +34,15 @@ class MyApp extends StatelessWidget {
           }
           // Once complete, sho your application
           if (snapshot.connectionState == ConnectionState.done) {
-            late dynamic uid = Provider.of<AppContext>(context, listen: true).uid;
+            User? user = FirebaseAuth.instance.currentUser;
+            print(user);
+            if(user!=null){
+              isUserExist(user.uid);
+              print(userExist);
+              if(userExist) {
+                Provider.of<AppContext>(context,listen: false).fillStore(user.uid);
+              }
+            }
             return MaterialApp(
               title: 'Flutter Demo',
               theme: ThemeData(
@@ -46,8 +57,8 @@ class MyApp extends StatelessWidget {
                 // is not restarted.
                 primarySwatch: Colors.blueGrey,
               ),
-
-              home: uid!=null ? const MyGames() : const LoginPage(),
+              // home: MyGames(),
+              home: user!=null ? const MyGames() : const LoginPage(),
             );
           }
           return const Text("waiting", textDirection: TextDirection.ltr);

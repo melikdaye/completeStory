@@ -38,7 +38,7 @@ class _CreateGamePageState extends State<CreateGamePage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(backgroundColor: Color(0xFFFB3640) ,),
         body:  ListView(
             physics: AlwaysScrollableScrollPhysics(),
           children: [Column(

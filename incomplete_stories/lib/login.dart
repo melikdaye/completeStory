@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:incomplete_stories/Components/googleSignInButton.dart';
 import 'package:incomplete_stories/myGames.dart';
 import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
@@ -14,83 +15,60 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late dynamic playerName;
-  late dynamic email;
-  final DatabaseService _databaseService = DatabaseService();
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
-      },
-      child: Scaffold(
-        body: Center(
+    return Scaffold(
+      backgroundColor: Color(0xFFFFA41B),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: 20.0,
+          ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                width: 200,
-                child: TextField(
-                  onChanged: (text) {
-                    setState(() {
-                      playerName = text;
-                    });
-                    ;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Kullanıcı Adı',
-                    hintText: "player123",
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Row(),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Image.asset(
+                        'assets/questionMark2.png',
+                        colorBlendMode: BlendMode.srcATop,
+                        height: 260,
                       ),
                     ),
-                    prefixIcon: const Icon(Icons.person),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  onChanged: (text) {
-                    setState(() {
-                      email = text;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'E-mail',
-                    hintText: "player123@mail.com",
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0 ,left: 0.0,bottom: 8.0),
+                      child: Text(
+                        'Eksik',
+                        style: TextStyle(
+                          color: Color(0xFFFF1E56),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
+                        ),
                       ),
                     ),
-                    prefixIcon: const Icon(Icons.mail),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      onPressed: () async {
-                        bool result  = _databaseService.createUser(email, playerName) as bool;
-                        if (result) {
-
-                          Navigator.push(context, MaterialPageRoute(builder: (context) {
-                            return  const MyGames();
-                          }));
-                        } else {
-                          print("error");
-                        }
-                      },
+                    Text(
+                      'Hikayeler',
+                      style: TextStyle(
+                        color: Color(0xFFFF1E56),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
 
+              GoogleSignInButton(),
 
             ],
           ),

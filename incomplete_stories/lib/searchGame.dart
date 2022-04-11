@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:incomplete_stories/Components/bottomBar.dart';
 import 'package:incomplete_stories/Components/listItem.dart';
 import 'package:incomplete_stories/models/gameRoom.dart';
+import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/services/databaseService.dart';
+import 'package:provider/provider.dart';
 
 class SearchGame extends StatefulWidget {
   const SearchGame({Key? key, required this.title}) : super(key: key);
@@ -20,10 +22,10 @@ class SearchGame extends StatefulWidget {
 class _SearchGameState extends State<SearchGame> {
   final DatabaseService _databaseService = DatabaseService();
   late Map<dynamic,GameRoom> games = {};
-  
+
   void filterGames() {
-    
-    games.removeWhere((key, value) => value.currentPlayers.contains("a"));
+    String uid = Provider.of<AppContext>(context,listen: false).uid;
+    games.removeWhere((key, value) => value.currentPlayers.contains(uid));
     
     if(mounted) {
       setState(() {
@@ -93,7 +95,7 @@ class _SearchGameState extends State<SearchGame> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(backgroundColor: Color(0xFFFB3640) ,),
           body: Column(
             children: [
               Container(

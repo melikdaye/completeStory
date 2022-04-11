@@ -35,13 +35,10 @@ class _AdminViewState extends State<AdminView> {
 
 
 
- answerQuestion(Question question,int index){
+  answerQuestion(Question question,int index){
     question.answer = index;
-   _databaseService.updateAnswerOfQuestion(question);
-   if(index == 0){
-     _databaseService.setCorrectQ(question.ownerID);
-   }
- }
+    _databaseService.updateAnswerOfQuestion(question);
+  }
   answerGuess(Answer answer,GameRoom room ,int index){
     answer.isCorrect = index;
     _databaseService.replyAnswer(answer);
@@ -128,8 +125,8 @@ class _AdminViewState extends State<AdminView> {
                     ),
                   ),
                   IconButton(onPressed: (){bottomSheet(playingManagedGames[widget.roomID] as GameRoom,null, 3, context);}, icon: const Icon(
-                    Icons.settings,
-                    color: Colors.black54)
+                      Icons.settings,
+                      color: Colors.black54)
                   ),
                 ],
               ),
@@ -139,60 +136,60 @@ class _AdminViewState extends State<AdminView> {
         body: Column(
           children: <Widget>[
             if(_selectedIndex == 0)
-            Expanded(
-              child: Consumer<AppContext>(
-                  builder : (context,s,_) {
-                    s.qOfGames[widget.roomID]?.sort((a, b) => a.answer.compareTo(b.answer));
-                    return s.qOfGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
-                      itemCount: s.qOfGames[widget.roomID]?.length,
-                      shrinkWrap: false,
-                      controller: _controller,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          padding: const EdgeInsets.only(
-                              left: 14, right: 14, top: 10, bottom: 10),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
+              Expanded(
+                child: Consumer<AppContext>(
+                    builder : (context,s,_) {
+                      s.qOfGames[widget.roomID]?.sort((a, b) => a.answer.compareTo(b.answer));
+                      return s.qOfGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
+                        itemCount: s.qOfGames[widget.roomID]?.length,
+                        shrinkWrap: false,
+                        controller: _controller,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            padding: const EdgeInsets.only(
+                                left: 14, right: 14, top: 10, bottom: 10),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
 
-                                  Icon(iconMap[s.qOfGames[widget.roomID]?[index].answer]),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color:  colorMap[s.qOfGames[widget.roomID]?[index].answer],
+                                    Icon(iconMap[s.qOfGames[widget.roomID]?[index].answer]),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color:  colorMap[s.qOfGames[widget.roomID]?[index].answer],
+                                      ),
+                                      padding: const EdgeInsets.all(16),
+                                      child: Text(
+                                          s.qOfGames[widget.roomID]?[index].question ??
+                                              "",
+                                          style: const TextStyle(fontSize: 15)),
+
                                     ),
-                                    padding: const EdgeInsets.all(16),
-                                    child: Text(
-                                        s.qOfGames[widget.roomID]?[index].question ??
-                                            "",
-                                        style: const TextStyle(fontSize: 15)),
+                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
+                                      IconButton(onPressed: () {
+                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,0);
+                                      }, icon: const Icon(Icons.check_circle),color:Colors.green,tooltip: "Evet",),
+                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
+                                      IconButton(onPressed: () {
+                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,1);
+                                      }, icon: const Icon(Icons.cancel),color: Colors.red,tooltip: "Hayır"),
+                                    if(s.qOfGames[widget.roomID]?[index].answer == 3)
+                                      IconButton(onPressed: () {
+                                        answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,2);
+                                      }, icon: const Icon(Icons.block),color: Colors.grey,tooltip:"Alakasız"),
+                                  ]
 
-                                  ),
-                                  if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                    IconButton(onPressed: () {
-                                      answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,0);
-                                    }, icon: const Icon(Icons.check_circle),color:Colors.green,tooltip: "Evet",),
-                                  if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                  IconButton(onPressed: () {
-                                    answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,1);
-                                  }, icon: const Icon(Icons.cancel),color: Colors.red,tooltip: "Hayır"),
-                                  if(s.qOfGames[widget.roomID]?[index].answer == 3)
-                                  IconButton(onPressed: () {
-                                    answerQuestion(s.qOfGames[widget.roomID]?[index] as Question,2);
-                                  }, icon: const Icon(Icons.block),color: Colors.grey,tooltip:"Alakasız"),
-                                ]
-
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ): Container();
-                  }
+                          );
+                        },
+                      ): Container();
+                    }
+                ),
               ),
-            ),
             if(_selectedIndex != 0)
               Expanded(
                 child: Consumer<AppContext>(

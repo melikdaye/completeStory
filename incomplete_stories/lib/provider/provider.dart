@@ -9,20 +9,28 @@ import 'package:incomplete_stories/services/databaseService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppContext extends ChangeNotifier {
-  /// Internal, private state of the cart.
   final DatabaseService _databaseService = DatabaseService();
   late Map<dynamic,GameRoom> preManagedGames = {};
   late Map<dynamic,GameRoom> playingManagedGames = {};
-  late Map<dynamic,GameRoom> completedGames = {};
+  // late Map<dynamic,GameRoom> completedGames = {};
   late Map<dynamic,GameRoom> preGames = {};
   late Map<dynamic,GameRoom> playingGames = {};
   late Map<dynamic,List<Question>> qOfGames = {};
   late Map<dynamic,List<Answer>> aOfGames = {};
   late Map<dynamic,List<Question>> qPlayedGames = {};
   late Map<dynamic,List<Answer>> aPlayedGames = {};
+  late List completedGames = [];
   late SharedPreferences prefs;
+  late Map userProps = {};
   late dynamic uid = null;
   late String playerName;
+  late dynamic credits;
+
+  addCredits (dynamic amount) {
+     userProps["credits"] += amount;
+     notifyListeners();
+  }
+
 
   late int selectedIndexBottomBar = 2;
 
@@ -30,45 +38,63 @@ class AppContext extends ChangeNotifier {
       prefs = await  SharedPreferences.getInstance();
   }
 
+  Future<void> getCompletedGames() async { // method
+    completedGames = await  _databaseService.getCompletedGames(uid);
+  }
+  Future<void> getUserProps() async { // method
+    userProps = await  _databaseService.getUserProps(uid);
+    print("userprops $userProps");
+  }
+
   AppContext.empty() {
+    print("empty provider");
+  /*  _databaseService.getManagedPreGames(
+        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
+    _databaseService.getManagedPlayingGames(
+        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);*/
+  }
+
+  fillStore(String id) {
     print("init provider");
-    getSharedPreferences().then((_)  {
-      uid = prefs.getString("uid");
-      if(uid != null) {
-        _databaseService.getManagedPreGames(
-            "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-        _databaseService.getManagedPlayingGames(
-            "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-        _databaseService.getInLobbyRooms("a", updateGames);
-        _databaseService.getInGameRooms("a", updateGames);
-      }
-    });
-    notifyListeners();
+    uid = id;
+    getUserProps();
+
+    _databaseService.getManagedPreGames(
+        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateMangedPreRoomStatus);
+    _databaseService.getManagedPlayingGames(
+        "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateMangedPlayingRoomStatus);
+    _databaseService.getInLobbyRooms(id, updateGames);
+    _databaseService.getInGameRooms(id, updateGames);
+    // notifyListeners();
 
   }
 
-  AppContext(String id,String playerName) {
-    print("init provider");
-    getSharedPreferences().then((_)  {
-        prefs.setString("uid",id);
-        uid = id;
-        playerName = playerName;
-        if(uid != null) {
-          _databaseService.getManagedPreGames(
-              "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-          _databaseService.getManagedPlayingGames(
-              "y7cPlFnzUNRZi3jTirbOPdW4bbC3", updateRoomStatus);
-          _databaseService.getInLobbyRooms("a", updateGames);
-          _databaseService.getInGameRooms("a", updateGames);
-        }else{
+  updateMangedPreRoomStatus(dynamic updates) {
+    print("updateRoomStatus $updates");
+    preManagedGames = {};
+    if(updates != null) {
+      print(updates.runtimeType);
+      dynamic games = (updates is List<Object?>) ? updates : updates.values
+          .toList();
+      for (var game in games as List<Object?>) {
+        if (game != null) {
+          dynamic hashedMap = jsonDecode(jsonEncode(game));
+          var map = HashMap.from(hashedMap);
+          GameRoom gameRoom = GameRoom.fromJson(map);
 
+          preManagedGames.update(
+              gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
         }
-    });
-    notifyListeners();
+      }
+    }
 
+    print("Pregames Managed $preManagedGames");
+    notifyListeners();
   }
 
-  updateRoomStatus(dynamic updates){
+  updateMangedPlayingRoomStatus(dynamic updates) {
+    print("updateRoomStatus $updates");
+    playingManagedGames = {};
     if(updates != null) {
       print(updates.runtimeType);
       dynamic games = (updates is List<Object?>) ? updates : updates.values.toList() ;
@@ -78,17 +104,12 @@ class AppContext extends ChangeNotifier {
           var map = HashMap.from(hashedMap);
           GameRoom gameRoom = GameRoom.fromJson(map);
           if (gameRoom.gameOver) {
-            completedGames.update(
-                gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
+            getCompletedGames();
+            // completedGames.update(
+            //     gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
+            playingManagedGames.remove(gameRoom.id);
           }
           else {
-            if (gameRoom.isWaiting) {
-              preManagedGames.update(
-                  gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
-            } else {
-              if (preManagedGames.keys.contains(gameRoom.id)) {
-                preManagedGames.remove(gameRoom.id);
-              }
               if(!playingManagedGames.keys.contains(gameRoom.id)) {
                 _databaseService.getQuestionOfGame(gameRoom, getQuestions);
                 _databaseService.getAnswerOfGame(gameRoom, getAnswers);
@@ -96,12 +117,11 @@ class AppContext extends ChangeNotifier {
               playingManagedGames.update(
                   gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
 
-            }
           }
+
         }
       }
     }
-    print("Pregames Managed $preManagedGames");
     print("PlayingGames Managed $playingManagedGames");
     notifyListeners();
   }
@@ -111,7 +131,7 @@ class AppContext extends ChangeNotifier {
       dynamic hashedMap = jsonDecode(jsonEncode(game));
       var map = HashMap.from(hashedMap);
       GameRoom gameRoom = GameRoom.fromJson(map);
-      if (gameRoom.currentPlayers.contains("a")) {
+      if (gameRoom.currentPlayers.contains(uid)) {
         if(gameRoom.isWaiting){
           preGames.update(
               gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
@@ -125,9 +145,12 @@ class AppContext extends ChangeNotifier {
               gameRoom.id, (value) => gameRoom, ifAbsent: () => gameRoom);
           if(preGames.keys.contains(gameRoom.id)){
             preGames.remove(gameRoom.id);
-            _databaseService.getInGame("a", gameRoom);
+            _databaseService.getInGame(uid, gameRoom);
           }
 
+        }
+        if(gameRoom.gameOver){
+          playingGames.remove(gameRoom.id);
         }
       } else {
         if(gameRoom.isWaiting) {
@@ -227,7 +250,15 @@ class AppContext extends ChangeNotifier {
     notifyListeners();
   }
   setPlayerName(String playerName){
-    playerName = playerName;
+    userProps["playerName"] = playerName;
+    notifyListeners();
+  }
+  incTotalA(){
+    userProps["totalA"] = (userProps["totalA"] ?? 0) + 1 ;
+    notifyListeners();
+  }
+  incTotalQ(){
+    userProps["totalQ"] = (userProps["totalQ"] ?? 0) + 1 ;
     notifyListeners();
   }
 

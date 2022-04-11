@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:incomplete_stories/createGame.dart';
 import 'package:incomplete_stories/myGames.dart';
+import 'package:incomplete_stories/mySettings.dart';
 import 'package:incomplete_stories/provider/provider.dart';
 import 'package:incomplete_stories/searchGame.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,9 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       case 2:
         selected = const MyGames();
         break;
+      case 3:
+        selected = const MySettings();
+        break;
     }
 
     Provider.of<AppContext>(context,listen: false).changeBottomBarIndex(index);
@@ -45,7 +49,8 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color(0xFF39AEA9),
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Color(0xFFF14A16),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
@@ -58,6 +63,10 @@ class _BottomNavigatorState extends State<BottomNavigator> {
           BottomNavigationBarItem(
             icon: Icon(Icons.sports_esports,),
             label: 'Oyunlarım',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Hesabım',
           ),
         ],
         currentIndex: _selectedIndex,

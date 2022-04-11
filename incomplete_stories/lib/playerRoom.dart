@@ -22,9 +22,10 @@ class _PlayerRoomState extends State<PlayerRoom> {
   //     Provider.of<AppContext>(context, listen: true).s.qPlayedGames;
   late Map<dynamic, GameRoom> playingGames =
       Provider.of<AppContext>(context, listen: true).playingGames;
-
+  late String uid = Provider.of<AppContext>(context, listen: false).uid;
   late bool isQuestion = true;
-  late double amountOfBlur = 6;
+  late List<dynamic> amountOfBlur = [];
+  late List<dynamic> indexes = [];
   late List<String> hintText = ["Soru sor","Hikayeyi tahmin et"];
   List<String> possibleAns = <String>['Evet', 'Hayır', 'Alakasız'];
   Map<int,Color> colorMap = {0:Colors.green,1:Colors.red,2:Colors.amberAccent,3:Colors.blueGrey};
@@ -36,40 +37,73 @@ class _PlayerRoomState extends State<PlayerRoom> {
 
   askOrGuess(){
     if(isQuestion){
-      Question question = Question.empty("a");
+      Question question = Question.empty(uid);
       question.question = qFieldController.text;
       question.date = DateTime.now();
       _databaseService.addQuestionToGame(question,playingGames[widget.roomID] as GameRoom);
-      FocusScopeNode currentFocus = FocusScope.of(context);
-      if (!currentFocus.hasPrimaryFocus) {
-        currentFocus.unfocus();
-      }
-      qFieldController.clear();
-      _scrollDown();
+      Provider.of<AppContext>(context, listen: false).incTotalQ();
+
     }else{
-      Answer answer = Answer.empty("a");
+      Answer answer = Answer.empty(uid);
       answer.answer = qFieldController.text;
       answer.date = DateTime.now();
       _databaseService.addAnswerToGame(answer, playingGames[widget.roomID] as GameRoom);
+      Provider.of<AppContext>(context, listen: false).incTotalA();
     }
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+    qFieldController.clear();
+    _scrollDown();
   }
 
-  showQuestion(Question? question){
+  showQuestion(Question? question,index){
     setState(() {
-      amountOfBlur = 0;
+      indexes.add(index);
     });
-    Timer(Duration(seconds: 5), () {
-      _databaseService.updateViewedPlayers(question!,"a");
+    Timer(Duration(seconds: 3), () {
+      _databaseService.updateViewedPlayers(question!,uid);
       setState(() {
-      amountOfBlur = 6;
+        indexes.remove(index);
     });});
 
   }
 
-  saveQuestion(Question? question){
+  showAlertDialog(BuildContext context) {
+    // Create button
+    Widget okButton = FlatButton(
+      child: Text("Tamam"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
 
-    _databaseService.updateSavedPlayers(question!,"a");
+    // Create AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Yetersiz Kredi"),
+      content: Text("Bu işlem için yeterli krediniz maalesef bulunmamaktadır."),
+      actions: [
+        okButton,
+      ],
+    );
 
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  saveQuestion(Question? question) async {
+    if(await _databaseService.buySomething(uid, 3)) {
+      Provider.of<AppContext>(context, listen: false).addCredits(-3);
+      _databaseService.updateSavedPlayers(question!, uid);
+    }else{
+        showAlertDialog(context);
+    }
   }
 
   void _scrollDown() {
@@ -148,6 +182,17 @@ class _PlayerRoomState extends State<PlayerRoom> {
                     ],
                   ),
                 ),
+                  Consumer<AppContext>(
+                  builder : (context,s,_) {
+                return Text(
+                  s.userProps["credits"].toString(),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
+                );}),
+                Icon(
+                    Icons.monetization_on,
+                    color: Colors.amber,semanticLabel: "15",),
+
                 IconButton(onPressed: (){bottomSheet(playingGames[widget.roomID] as GameRoom,null, 4, context);}, icon: Icon(
                     Icons.settings,
                     color: Colors.black54)
@@ -165,6 +210,11 @@ class _PlayerRoomState extends State<PlayerRoom> {
         child: Consumer<AppContext>(
             builder : (context,s,_) {
               s.qPlayedGames[widget.roomID]?.sort((a, b) => a.date.compareTo(b.date));
+              amountOfBlur = s.qPlayedGames[widget.roomID]?.map((a) => a.ownerID != uid? (!a.savedBy.contains(uid)? 6 : 0) : 0).toList() ?? [];
+              for(var i in indexes){
+                  amountOfBlur[i] = 0;
+              }
+              print(amountOfBlur);
               return s.qPlayedGames[widget.roomID]?.isNotEmpty ?? false ? ListView.builder(
                 itemCount: s.qPlayedGames[widget.roomID]?.length,
                 shrinkWrap: false,
@@ -176,23 +226,23 @@ class _PlayerRoomState extends State<PlayerRoom> {
                         left: 14, right: 14, top: 10, bottom: 10),
                     child: Align(
                       alignment: (s.qPlayedGames[widget.roomID]?[index].ownerID !=
-                          "a" ? Alignment.topLeft : Alignment.topRight),
+                          uid ? Alignment.topLeft : Alignment.topRight),
                       child: Row(
                           mainAxisAlignment: (s.qPlayedGames[widget.roomID]?[index]
-                              .ownerID != "a"
+                              .ownerID != uid
                               ? MainAxisAlignment.start
                               : MainAxisAlignment.end),
                           children: <Widget>[
-                            if(s.qPlayedGames[widget.roomID]?[index].ownerID == "a")
+                            if(s.qPlayedGames[widget.roomID]?[index].ownerID == uid)
                               Icon(iconMap[s.qPlayedGames[widget.roomID]?[index]
                                   .answer]),
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: ((s.qPlayedGames[widget.roomID]?[index]
-                                    .ownerID != "a" || amountOfBlur != 6 ||
-                                    (s.qPlayedGames[widget.roomID]?[index].savedBy
-                                        .contains("a") ?? true)) ? Colors.grey
+                                    .ownerID != uid && amountOfBlur[index] == 6 &&
+                                    !(s.qPlayedGames[widget.roomID]?[index].savedBy
+                                        .contains(uid) ?? true)) ? Colors.grey
                                     .shade200 : colorMap[s.qPlayedGames[widget
                                     .roomID]?[index].answer]),
                               ),
@@ -203,35 +253,55 @@ class _PlayerRoomState extends State<PlayerRoom> {
                                   s.qPlayedGames[widget.roomID]?[index].question ??
                                       "",
                                   style: ((s.qPlayedGames[widget.roomID]?[index]
-                                      .ownerID != "a" &&
+                                      .ownerID != uid &&
                                       !(s.qPlayedGames[widget.roomID]?[index]
-                                          .savedBy.contains("a") ?? false))
+                                          .savedBy.contains(uid) ?? false))
                                       ? TextStyle(
                                       fontSize: 15,
                                       foreground: Paint()
                                         ..style = PaintingStyle.fill
                                         ..color = Colors.black
                                         ..maskFilter = MaskFilter.blur(
-                                            BlurStyle.normal, amountOfBlur))
+                                            BlurStyle.normal, amountOfBlur[index].toDouble()))
                                       : TextStyle(fontSize: 15))),
 
                             ),
                             if(s.qPlayedGames[widget.roomID]?[index].ownerID !=
-                                "a" &&
+                                uid &&
                                 !(s.qPlayedGames[widget.roomID]?[index].viewedBy
-                                    .contains("a") ?? false) &&s.qPlayedGames[widget.roomID]?[index].answer!=3)
+                                    .contains(uid) ?? false) &&s.qPlayedGames[widget.roomID]?[index].answer!=3)
                               IconButton(onPressed: () {
-                                showQuestion(s.qPlayedGames[widget.roomID]?[index]);
+                                showQuestion(s.qPlayedGames[widget.roomID]?[index],index);
                               }, icon: Icon(Icons.remove_red_eye)),
                             if((s.qPlayedGames[widget.roomID]?[index].viewedBy
-                                .contains("a") ?? true) &&
+                                .contains(uid) ?? true) &&
                                 !(s.qPlayedGames[widget.roomID]?[index].savedBy
-                                    .contains("a") ?? false))
+                                    .contains(uid) ?? false))
                               IconButton(onPressed: () {
                                 saveQuestion(s.qPlayedGames[widget.roomID]?[index]);
                               }, icon: Icon(Icons.save)),
-                            if((s.qPlayedGames[widget.roomID]?[index].savedBy
-                                .contains("a") ?? true))
+                            if((s.qPlayedGames[widget.roomID]?[index].viewedBy
+                                .contains(uid) ?? true) &&
+                                !(s.qPlayedGames[widget.roomID]?[index].savedBy
+                                    .contains(uid) ?? false))
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "-3",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            Icon(
+                                              Icons.monetization_on,
+                                              color: Colors.amber,
+                                              semanticLabel: "15",
+                                            ),
+                                          ],
+                                        ),
+
+                                      if((s.qPlayedGames[widget.roomID]?[index].savedBy
+                                .contains(uid) ?? true))
                               Icon(iconMap[s.qPlayedGames[widget.roomID]?[index]
                                   .answer]),
                           ]
@@ -255,16 +325,16 @@ class _PlayerRoomState extends State<PlayerRoom> {
                       controller: _controller,
                       physics: AlwaysScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        if(s.aPlayedGames[widget.roomID]?[index].ownerID == "a"){
+                        if(s.aPlayedGames[widget.roomID]?[index].ownerID == uid){
                         return Container(
                           padding: EdgeInsets.only(
                               left: 14, right: 14, top: 10, bottom: 10),
                           child: Align(
                             alignment: (s.aPlayedGames[widget.roomID]?[index].ownerID !=
-                                "a" ? Alignment.topLeft : Alignment.topRight),
+                                uid ? Alignment.topLeft : Alignment.topRight),
                             child: Row(
                                 mainAxisAlignment: (s.aPlayedGames[widget.roomID]?[index]
-                                    .ownerID != "a"
+                                    .ownerID != uid
                                     ? MainAxisAlignment.start
                                     : MainAxisAlignment.end),
                                 children: <Widget>[
